@@ -1,0 +1,41 @@
+name: Deploy Frontend
+
+on:
+  push:
+    branches:
+      - develop
+      - prod
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Frontend (Production)
+        run: npm run build -- --configuration production
+
+      - name: Setup SSH Key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Add remote server to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.SSH_PORT }}${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Sync Frontend Build (Prod)
+        if: github.ref == 'refs/heads/prod'
+        run: |
+          rsync -avz --delete -e "ssh -p ${{ secrets.SSH_PORT }}" ./dist/*/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/produccion/newera-app/frontend/
