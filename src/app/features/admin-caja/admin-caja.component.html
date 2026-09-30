@@ -1,0 +1,287 @@
+    <div class="h-full p-6 flex flex-col gap-6 animate-in fade-in duration-300">
+      
+      <!-- Header Section -->
+      <div class="flex flex-col xl:flex-row xl:items-end justify-between border-b border-white/10 pb-4 gap-4">
+        <div>
+          <h1 class="text-3xl font-bold tracking-tight text-white mb-2">Aprobaciones de Caja</h1>
+          <p class="text-newera-text-muted text-sm">Gestiona las solicitudes de depósito y retiro de los clientes.</p>
+        </div>
+        
+        <!-- Metrics -->
+        <div class="flex gap-4 md:gap-8 overflow-x-auto w-full xl:w-auto pb-2 xl:pb-0">
+          <div class="flex flex-col items-start xl:items-end shrink-0">
+            <span class="text-[10px] text-newera-text-muted uppercase tracking-widest font-semibold">Pendientes (Retiros)</span>
+            <span class="text-newera-loss font-mono font-bold text-lg"><span>$</span>{{ pendingRetirosTotal | number:'1.2-2' }}</span>
+          </div>
+          <div class="flex flex-col items-start xl:items-end border-l border-white/10 pl-4 md:pl-8 shrink-0">
+            <span class="text-[10px] text-newera-text-muted uppercase tracking-widest font-semibold">Pendientes (Depósitos)</span>
+            <span class="text-newera-profit font-mono font-bold text-lg"><span>$</span>{{ pendingDepositosTotal | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="glass-panel p-4 flex flex-col md:flex-row justify-between gap-4">
+        <div class="flex gap-2 md:gap-4 overflow-x-auto pb-1 md:pb-0 hide-scrollbar">
+          <button (click)="setTab('PENDIENTES')" [ngClass]="activeTab === 'PENDIENTES' ? 'bg-newera-primary/20 text-newera-primary border-newera-primary/50' : 'bg-white/5 text-white/70 border-transparent hover:border-white/20'" class="px-4 py-2 border font-bold text-xs rounded uppercase tracking-wider transition-colors whitespace-nowrap">Pendientes ({{requests.length}})</button>
+          <button (click)="setTab('HISTORIAL')" [ngClass]="activeTab === 'HISTORIAL' ? 'bg-newera-primary/20 text-newera-primary border-newera-primary/50' : 'bg-white/5 text-white/70 border-transparent hover:border-white/20'" class="px-4 py-2 border font-bold text-xs rounded uppercase tracking-wider transition-colors whitespace-nowrap">Historial Aprobado</button>
+        </div>
+        <div class="relative w-full md:w-64">
+          <input type="text" placeholder="Buscar por Cliente o ID..." class="w-full bg-black/50 border border-white/10 rounded px-4 py-2 text-white text-sm focus:outline-none focus:border-newera-primary transition-colors">
+        </div>
+      </div>
+
+      <!-- Table Section -->
+      <div class="glass-panel flex-1 overflow-hidden flex flex-col">
+        <div class="overflow-x-auto flex-1">
+          <!-- Vista Desktop (Tabla) -->
+          <table class="w-full text-left text-sm whitespace-nowrap hidden md:table">
+            <thead class="text-xs text-newera-text-muted uppercase bg-black/40 sticky top-0 backdrop-blur-md border-b border-white/10 z-10">
+              <tr>
+                <th class="px-6 py-4 font-semibold hidden lg:table-cell">Solicitud</th>
+                <th class="px-6 py-4 font-semibold">Cliente</th>
+                <th class="px-6 py-4 font-semibold">Tipo</th>
+                <th class="px-6 py-4 font-semibold text-right">Monto Solicitado</th>
+                <th class="px-6 py-4 font-semibold hidden md:table-cell">Método / Cuenta</th>
+                <th class="px-6 py-4 font-semibold hidden lg:table-cell">Nota</th>
+                <th class="px-6 py-4 font-semibold text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody *ngIf="activeTab === 'PENDIENTES'" class="divide-y divide-white/5">
+              <tr *ngFor="let req of requests; let i = index" class="hover:bg-white/5 transition-colors group">
+                <td class="px-6 py-4 hidden lg:table-cell">
+                  <div class="flex flex-col">
+                    <span class="font-mono text-xs text-white/50 group-hover:text-newera-primary transition-colors">{{ req.id }}</span>
+                    <span class="text-[10px] text-newera-text-muted mt-1">{{ req.date | date:'dd MMM yyyy, HH:mm' }}</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center font-bold text-xs text-white">
+                      {{ req.clientName.charAt(0) }}
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-white font-semibold">{{ req.clientName }}</span>
+                      <span class="text-[10px] text-newera-text-muted">{{ req.clientEmail }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="px-2 py-1 rounded text-xs font-bold border"
+                        [ngClass]="{
+                          'bg-newera-profit/10 text-newera-profit border-newera-profit/20': req.type === 'DEPOSITO',
+                          'bg-newera-loss/10 text-newera-loss border-newera-loss/20': req.type === 'RETIRO'
+                        }">
+                    {{ req.type }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 font-mono font-bold text-right"
+                    [ngClass]="req.type === 'DEPOSITO' ? 'text-newera-profit' : 'text-white'">
+                    <span>$</span>{{ req.amount | number:'1.2-2' }}
+                </td>
+                <td class="px-6 py-4 hidden md:table-cell">
+                  <div class="flex flex-col">
+                    <span class="text-white text-xs">{{ req.method }}</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 hidden lg:table-cell max-w-[200px]">
+                  <span class="text-newera-text-muted text-[10px] font-mono truncate block" [title]="req.accountDetails">{{ req.accountDetails }}</span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <div class="flex flex-col items-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <button (click)="openConfirm(req, 'APROBAR')" class="w-[90px] text-[9px] font-bold uppercase tracking-wider border border-newera-profit/50 text-newera-profit hover:bg-newera-profit hover:text-black px-2 py-1.5 rounded transition-all">
+                      Aprobar
+                    </button>
+                    <button (click)="openConfirm(req, 'RECHAZAR')" class="w-[90px] text-[9px] font-bold uppercase tracking-wider border border-newera-loss/50 text-newera-loss hover:bg-newera-loss hover:text-white px-2 py-1.5 rounded transition-all">
+                      Rechazar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="requests.length === 0">
+                <td colspan="6" class="px-6 py-8 text-center text-newera-text-muted text-sm">No hay peticiones pendientes.</td>
+              </tr>
+            </tbody>
+
+            <tbody *ngIf="activeTab === 'HISTORIAL'" class="divide-y divide-white/5">
+              <tr *ngFor="let req of approvedRequests" class="hover:bg-white/5 transition-colors group">
+                <td class="px-6 py-4 hidden lg:table-cell">
+                  <div class="flex flex-col">
+                    <span class="font-mono text-xs text-white/50">{{ req.id }}</span>
+                    <span class="text-[10px] text-newera-text-muted mt-1">{{ req.date | date:'dd MMM yyyy, HH:mm' }}</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center font-bold text-xs text-white">
+                      {{ req.clientName.charAt(0) }}
+                    </div>
+                    <div class="flex flex-col">
+                      <span class="text-white font-semibold">{{ req.clientName }}</span>
+                      <span class="text-[10px] text-newera-text-muted">{{ req.clientEmail }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td class="px-6 py-4">
+                  <span class="px-2 py-1 rounded text-xs font-bold border"
+                        [ngClass]="{
+                          'bg-newera-profit/10 text-newera-profit border-newera-profit/20': req.type === 'DEPOSITO',
+                          'bg-newera-loss/10 text-newera-loss border-newera-loss/20': req.type === 'RETIRO'
+                        }">
+                    {{ req.type }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 font-mono font-bold text-right"
+                    [ngClass]="req.type === 'DEPOSITO' ? 'text-newera-profit' : 'text-white'">
+                    <span>$</span>{{ req.amount | number:'1.2-2' }}
+                </td>
+                <td class="px-6 py-4 hidden md:table-cell">
+                  <div class="flex flex-col">
+                    <span class="text-white text-xs">{{ req.method }}</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4 hidden lg:table-cell max-w-[200px]">
+                  <span class="text-newera-text-muted text-[10px] font-mono truncate block" [title]="req.accountDetails">{{ req.accountDetails }}</span>
+                </td>
+                <td class="px-6 py-4 text-right">
+                   <span class="px-2 py-1.5 rounded text-[10px] font-bold border tracking-wider uppercase inline-block w-[90px] text-center"
+                        [ngClass]="req.status === 'APROBADO' ? 'bg-newera-profit/10 text-newera-profit border-newera-profit/20' : 'bg-newera-loss/10 text-newera-loss border-newera-loss/20'">
+                     {{ req.status }}
+                   </span>
+                </td>
+              </tr>
+              <tr *ngIf="approvedRequests.length === 0">
+                <td colspan="6" class="px-6 py-8 text-center text-newera-text-muted text-sm">El historial está vacío.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Vista Móvil (Tarjetas) -->
+          <div *ngIf="activeTab === 'PENDIENTES'" class="md:hidden flex flex-col gap-4 p-4 pb-20 overflow-y-auto">
+            <div *ngFor="let req of requests" class="bg-black/40 border border-white/5 rounded-xl p-4 flex flex-col gap-4 shadow-lg relative overflow-hidden group">
+              <!-- Top Header Row -->
+              <div class="flex justify-between items-start">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-bold text-sm text-white">
+                    {{ req.clientName.charAt(0) }}
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-white font-bold text-sm">{{ req.clientName }}</span>
+                    <span class="font-mono text-[9px] text-white/40 mt-0.5">{{ req.id }} • {{ req.date | date:'dd MMM, HH:mm' }}</span>
+                  </div>
+                </div>
+                <div class="px-2 py-1 rounded text-[10px] font-bold tracking-wider"
+                     [ngClass]="req.type === 'DEPOSITO' ? 'bg-newera-profit/10 text-newera-profit border border-newera-profit/20' : 'bg-newera-loss/10 text-newera-loss border border-newera-loss/20'">
+                  {{ req.type }}
+                </div>
+              </div>
+
+              <!-- Middle Info Row -->
+              <div class="flex flex-col gap-3 border-t border-white/5 pt-3">
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] text-newera-text-muted uppercase tracking-wider">Monto Solicitado</span>
+                  <span class="font-mono font-bold text-lg" [ngClass]="req.type === 'DEPOSITO' ? 'text-newera-profit' : 'text-white'">
+                    <span>$</span>{{ req.amount | number:'1.2-2' }}
+                  </span>
+                </div>
+                <div class="bg-black/20 rounded p-2 border border-white/5">
+                  <span class="text-[9px] text-newera-text-muted uppercase tracking-wider block mb-0.5">Método / Nota</span>
+                  <span class="text-white text-xs block font-bold">{{ req.method }}</span>
+                  <span class="text-white/70 text-[10px] font-mono block mt-0.5 truncate" [title]="req.accountDetails">{{ req.accountDetails }}</span>
+                </div>
+              </div>
+
+              <!-- Bottom Actions Row -->
+              <div class="flex gap-2 pt-1">
+                <button (click)="openConfirm(req, 'APROBAR')" class="flex-1 py-2 rounded bg-newera-profit/10 text-newera-profit border border-newera-profit/50 hover:bg-newera-profit hover:text-black font-bold text-[10px] uppercase tracking-wider transition-all">
+                  Aprobar
+                </button>
+                <button (click)="openConfirm(req, 'RECHAZAR')" class="flex-1 py-2 rounded bg-newera-loss/10 text-newera-loss border border-newera-loss/50 hover:bg-newera-loss hover:text-white font-bold text-[10px] uppercase tracking-wider transition-all">
+                  Rechazar
+                </button>
+              </div>
+            </div>
+            <div *ngIf="requests.length === 0" class="text-center text-newera-text-muted text-sm py-8">
+              No hay peticiones pendientes.
+            </div>
+          </div>
+
+          <!-- Vista Móvil (Tarjetas Historial) -->
+          <div *ngIf="activeTab === 'HISTORIAL'" class="md:hidden flex flex-col gap-4 p-4 pb-20 overflow-y-auto">
+            <div *ngFor="let req of approvedRequests" class="bg-black/40 border border-white/5 rounded-xl p-4 flex flex-col gap-4 shadow-lg relative overflow-hidden group">
+              <!-- Top Header Row -->
+              <div class="flex justify-between items-start">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-bold text-sm text-white">
+                    {{ req.clientName.charAt(0) }}
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-white font-bold text-sm">{{ req.clientName }}</span>
+                    <span class="font-mono text-[9px] text-white/40 mt-0.5">{{ req.id }} • {{ req.date | date:'dd MMM, HH:mm' }}</span>
+                  </div>
+                </div>
+                <div class="px-2 py-1 rounded text-[10px] font-bold tracking-wider"
+                     [ngClass]="req.type === 'DEPOSITO' ? 'bg-newera-profit/10 text-newera-profit border border-newera-profit/20' : 'bg-newera-loss/10 text-newera-loss border border-newera-loss/20'">
+                  {{ req.type }}
+                </div>
+              </div>
+
+              <!-- Middle Info Row -->
+              <div class="flex flex-col gap-3 border-t border-white/5 pt-3">
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] text-newera-text-muted uppercase tracking-wider">Monto Solicitado</span>
+                  <span class="font-mono font-bold text-lg" [ngClass]="req.type === 'DEPOSITO' ? 'text-newera-profit' : 'text-white'">
+                    <span>$</span>{{ req.amount | number:'1.2-2' }}
+                  </span>
+                </div>
+                <div class="bg-black/20 rounded p-2 border border-white/5">
+                  <span class="text-[9px] text-newera-text-muted uppercase tracking-wider block mb-0.5">Método / Nota</span>
+                  <span class="text-white text-xs block font-bold">{{ req.method }}</span>
+                  <span class="text-white/70 text-[10px] font-mono block mt-0.5 truncate" [title]="req.accountDetails">{{ req.accountDetails }}</span>
+                </div>
+                <div class="flex justify-end mt-1">
+                  <span class="px-2 py-1 rounded text-[9px] font-bold border tracking-wider uppercase inline-block"
+                        [ngClass]="req.status === 'APROBADO' ? 'bg-newera-profit/10 text-newera-profit border-newera-profit/20' : 'bg-newera-loss/10 text-newera-loss border-newera-loss/20'">
+                     {{ req.status }}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="approvedRequests.length === 0" class="text-center text-newera-text-muted text-sm py-8">
+              El historial está vacío.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal de Confirmación -->
+      <div *ngIf="showConfirmModal" class="fixed inset-0 z-[60] flex items-center justify-center animate-in fade-in duration-200">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="cancelConfirm()"></div>
+        <div class="relative bg-[#0f1219] border border-newera-primary/30 rounded-xl p-6 w-[90%] max-w-sm shadow-[0_0_30px_rgba(37,99,235,0.15)] animate-in zoom-in-95 duration-200">
+          <h3 class="text-lg font-bold text-white mb-2">{{ confirmAction === 'APROBAR' ? 'Aprobar' : 'Rechazar' }} Petición</h3>
+          <p class="text-sm text-white/70 mb-6">
+            ¿Confirmas la decisión?
+          </p>
+          <div class="flex justify-end gap-3">
+            <button (click)="cancelConfirm()" class="px-4 py-2 rounded text-xs font-bold text-white/70 hover:text-white hover:bg-white/5 transition-colors">
+              CANCELAR
+            </button>
+            <button (click)="confirmActionExecute()" class="px-4 py-2 rounded text-xs font-bold transition-colors shadow-lg"
+                    [ngClass]="confirmAction === 'APROBAR' ? 'bg-newera-profit text-black hover:bg-white' : 'bg-newera-loss text-white hover:bg-white hover:text-black'">
+              SÍ, {{ confirmAction }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast Notification -->
+      <div *ngIf="toastMessage" class="fixed bottom-4 right-4 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
+        <div class="glass-panel bg-newera-profit/10 border border-newera-profit/30 px-4 py-3 flex items-center gap-3 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+          <svg class="w-5 h-5 text-newera-profit" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="text-sm font-semibold text-white">{{ toastMessage }}</span>
+        </div>
+      </div>
+
+    </div>

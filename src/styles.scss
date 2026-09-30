@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-newera-bg-dark text-newera-text-main font-sans antialiased;
+    margin: 0;
+    min-height: 100vh;
+  }
+}
+
+@layer components {
+  /* Clase utilitaria para crear paneles ultralimpios con brillo de neón (Glassmorphism avanzado) */
+  .glass-panel {
+    @apply relative bg-[#111111]/80 backdrop-blur-xl border border-newera-primary/30 rounded-xl shadow-[0_0_30px_rgba(37,99,235,0.1)];
+  }
+  
+  .glass-panel::before {
+    content: '';
+    @apply absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[2px] bg-gradient-to-r from-transparent via-newera-primary to-transparent shadow-[0_0_15px_rgba(37,99,235,0.8)] pointer-events-none;
+  }
+  
+  /* Botón primario de NewEra - Elegante y Tecnológico */
+  .btn-premium {
+    @apply relative bg-newera-primary text-white font-semibold py-2.5 px-6 rounded-lg border border-white/10 transition-all hover:bg-blue-500 hover:shadow-[0_0_15px_rgba(37,99,235,0.3)] active:scale-95;
+  }
+  
+  /* Acento dorado para opciones premium */
+  .text-premium {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-newera-accent to-yellow-300;
+  }
+}

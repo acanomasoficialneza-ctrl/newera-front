@@ -1,0 +1,230 @@
+
+    <div class="h-full p-6 flex flex-col gap-6 animate-in fade-in duration-300 overflow-y-auto pb-24 hide-scrollbar">
+      
+      <!-- Header Section -->
+      <div class="flex items-end justify-between border-b border-white/10 pb-4">
+        <div>
+          <h1 class="text-3xl font-bold tracking-tight text-white mb-2">Vision Global</h1>
+          <p class="text-newera-text-muted text-sm">Dashboard principal del Super Administrador.</p>
+        </div>
+      </div>
+
+      <!-- Key Metrics Categories -->
+      <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 shrink-0">
+        
+        <!-- Pillar 1: Salud Financiera -->
+        <div class="flex flex-col gap-4">
+          <h2 class="text-xs font-bold text-newera-text-muted uppercase tracking-widest flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-newera-primary"></span>
+            1. Salud Financiera
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- AUM -->
+            <div class="glass-panel p-5 relative group md:col-span-2">
+              <div class="absolute inset-0 bg-gradient-to-br from-newera-primary/10 to-transparent pointer-events-none rounded-[inherit]"></div>
+              <h3 class="text-[10px] font-semibold text-white/50 uppercase tracking-widest mb-1 flex items-center gap-1.5 group/tooltip relative w-max cursor-help border-b border-dotted border-white/30 pb-0.5">
+                AUM (Activos)
+                <span class="w-1 h-1 rounded-full bg-white/50"></span>
+                <div class="absolute bottom-full left-0 mb-2 hidden group-hover/tooltip:block bg-[#0B0E14] border border-white/20 p-2.5 rounded text-[10px] text-white/80 w-48 normal-case z-10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+                  Balance total consolidado de todos los clientes fondeados en la plataforma.
+                </div>
+              </h3>
+              <div class="flex items-baseline gap-2">
+                <span class="text-xl font-bold text-white font-mono"><span>$</span>{{ stats()?.aum | number:'1.0-2' }}</span>
+              </div>
+            </div>
+            <!-- Riesgo -->
+            <div class="glass-panel p-5 relative group border border-red-500/20">
+              <div class="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent pointer-events-none rounded-[inherit]"></div>
+              <h3 class="text-[10px] font-semibold text-red-400/70 uppercase tracking-widest mb-1 flex items-center gap-1.5 group/tooltip relative w-max cursor-help border-b border-dotted border-red-500/30 pb-0.5">
+                Riesgo Vivo
+                <span class="w-1 h-1 rounded-full bg-red-500 animate-pulse"></span>
+                <div class="absolute bottom-full left-0 mb-2 hidden group-hover/tooltip:block bg-[#0B0E14] border border-red-500/20 p-2.5 rounded text-[10px] text-white/80 w-48 normal-case z-10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+                  Exposicion total en operaciones de mercado que se encuentran actualmente abiertas.
+                </div>
+              </h3>
+              <div class="flex items-baseline gap-2">
+                <span class="text-xl font-bold text-white font-mono"><span>$</span>{{ stats()?.riesgoVivo | number:'1.0-2' }}</span>
+              </div>
+            </div>
+            <!-- Volumen -->
+            <div class="glass-panel p-5 relative group">
+              <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none rounded-[inherit]"></div>
+              <h3 class="text-[10px] font-semibold text-white/50 uppercase tracking-widest mb-1 flex items-center gap-1.5 group/tooltip relative w-max cursor-help border-b border-dotted border-white/30 pb-0.5">
+                Volumen 24h
+                <span class="w-1 h-1 rounded-full bg-white/50"></span>
+                <div class="absolute bottom-full left-0 mb-2 hidden group-hover/tooltip:block bg-[#0B0E14] border border-white/20 p-2.5 rounded text-[10px] text-white/80 w-48 normal-case z-10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+                  Total de volumen operado en compra/venta durante las ultimas 24 horas.
+                </div>
+              </h3>
+              <div class="flex items-baseline gap-2">
+                <span class="text-xl font-bold text-white font-mono"><span>$</span>{{ stats()?.volumen24h | number:'1.0-2' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pillar 2: Crecimiento y Operatividad -->
+        <div class="flex flex-col gap-4">
+          <h2 class="text-xs font-bold text-newera-text-muted uppercase tracking-widest flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-purple-500"></span>
+            2. Crecimiento
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Flujo de Caja Neto -->
+            <div class="glass-panel p-5 relative group md:col-span-2">
+              <div class="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-transparent pointer-events-none rounded-[inherit]"></div>
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="text-[10px] font-semibold text-white/50 uppercase tracking-widest mb-1 flex items-center gap-1.5 group/tooltip relative w-max cursor-help border-b border-dotted border-white/30 pb-0.5">
+                    Flujo Neto (30D)
+                    <span class="w-1 h-1 rounded-full bg-white/50"></span>
+                    <div class="absolute bottom-full left-0 mb-2 hidden group-hover/tooltip:block bg-[#0B0E14] border border-white/20 p-2.5 rounded text-[10px] text-white/80 w-48 normal-case z-10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+                      Depositos totales menos retiros completados en los ultimos 30 dias.
+                    </div>
+                  </h3>
+                  <div class="flex items-baseline gap-2">
+                    <span class="text-2xl font-bold text-white font-mono"><span>$</span>{{ stats()?.flujoNeto30d | number:'1.0-2' }}</span>
+                  </div>
+                </div>
+                <span class="px-2 py-1 rounded text-[10px] font-bold border"
+                      [ngClass]="(stats()?.flujoNeto30d || 0) >= 0 ? 'bg-newera-profit/10 text-newera-profit border-newera-profit/20' : 'bg-newera-loss/10 text-newera-loss border-newera-loss/20'">
+                  {{ (stats()?.flujoNeto30d || 0) >= 0 ? 'Positivo' : 'Negativo' }}
+                </span>
+              </div>
+            </div>
+            
+            <!-- Colaboradores -->
+            <div class="glass-panel p-5 relative group">
+              <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent pointer-events-none rounded-[inherit]"></div>
+              <h3 class="text-[10px] font-semibold text-indigo-400/70 uppercase tracking-widest mb-1 flex items-center gap-1.5 group/tooltip relative w-max cursor-help border-b border-dotted border-indigo-500/30 pb-0.5">
+                Staff (Admins)
+                <span class="w-1 h-1 rounded-full bg-indigo-500"></span>
+                <div class="absolute bottom-full left-0 mb-2 hidden group-hover/tooltip:block bg-[#0B0E14] border border-indigo-500/20 p-2.5 rounded text-[10px] text-white/80 w-48 normal-case z-10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+                  Total de colaboradores (ejecutivos y gerentes) activos en el sistema.
+                </div>
+              </h3>
+              <div class="flex items-baseline gap-2">
+                <span class="text-xl font-bold text-white font-mono">{{ stats()?.staffActivos }}</span>
+              </div>
+            </div>
+            <!-- Conversion FTD -->
+            <div class="glass-panel p-5 relative group">
+              <h3 class="text-[10px] font-semibold text-white/50 uppercase tracking-widest mb-1 flex items-center gap-1.5 group/tooltip relative w-max cursor-help border-b border-dotted border-white/30 pb-0.5">
+                Conversion FTD
+                <span class="w-1 h-1 rounded-full bg-white/50"></span>
+                <div class="absolute bottom-full left-0 mb-2 hidden group-hover/tooltip:block bg-[#0B0E14] border border-white/20 p-2.5 rounded text-[10px] text-white/80 w-48 normal-case z-10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+                  Porcentaje de nuevos registros que ya realizaron su primer deposito.
+                </div>
+              </h3>
+              <div class="flex items-baseline gap-2">
+                <span class="text-xl font-bold text-white font-mono">{{ stats()?.conversionFtd | number:'1.0-1' }}%</span>
+              </div>
+              <div class="mt-2 h-1 w-full bg-white/10 rounded overflow-hidden">
+                <div class="h-full bg-purple-400" [style.width.%]="stats()?.conversionFtd"></div>
+              </div>
+            </div>
+            <!-- Usuarios -->
+            <div class="glass-panel p-5 relative group">
+              <h3 class="text-[10px] font-semibold text-white/50 uppercase tracking-widest mb-1 flex items-center gap-1.5 group/tooltip relative w-max cursor-help border-b border-dotted border-white/30 pb-0.5">
+                Usuarios Totales
+                <span class="w-1 h-1 rounded-full bg-white/50"></span>
+                <div class="absolute bottom-full left-0 mb-2 hidden group-hover/tooltip:block bg-[#0B0E14] border border-white/20 p-2.5 rounded text-[10px] text-white/80 w-48 normal-case z-10 shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
+                  Usuarios registrados en total, y cuantos han operado recientemente.
+                </div>
+              </h3>
+              <div class="flex items-baseline gap-2">
+                <span class="text-xl font-bold text-white font-mono">{{ stats()?.usuariosTotales }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pillar 3: Cuellos de Botella -->
+        <div class="flex flex-col gap-4">
+          <h2 class="text-xs font-bold text-newera-text-muted uppercase tracking-widest flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>
+            3. Alertas & Cuellos de Botella
+          </h2>
+          <div class="flex flex-col gap-4 h-full">
+            
+            <!-- Caja -->
+            <div class="glass-panel p-4 border border-yellow-500/30 bg-yellow-500/5 relative flex items-center justify-between flex-1 group">
+              <div>
+                <h3 class="text-[10px] font-bold text-yellow-500/70 uppercase tracking-widest mb-1 flex items-center gap-1.5 group/tooltip relative w-max cursor-help border-b border-dotted border-yellow-500/30 pb-0.5">
+                  Retiros en Cola
+                  <span class="w-1 h-1 rounded-full bg-yellow-500/50"></span>
+                  <div class="absolute bottom-full left-0 mb-2 hidden group-hover/tooltip:block bg-[#0B0E14] border border-yellow-500/20 p-2.5 rounded text-[10px] text-white/80 w-48 normal-case z-10 shadow-[0_4px_20px_rgba(0,0,0,0.5)] font-normal">
+                    Cantidad de retiros pendientes de aprobacion en caja.
+                  </div>
+                </h3>
+                <div class="flex items-baseline gap-2">
+                  <span class="text-xl font-bold text-yellow-400 font-mono">{{ stats()?.retirosEnCola }}</span>
+                  <span class="text-xs text-white/50 font-mono">(${{ stats()?.retirosEnColaMonto | number:'1.0-2' }})</span>
+                </div>
+              </div>
+              <button routerLink="/app/admin/caja" class="bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 hover:bg-yellow-500 hover:text-black px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition-colors shadow-[0_0_10px_rgba(234,179,8,0)] hover:shadow-[0_0_10px_rgba(234,179,8,0.5)]">
+                Exigir Accion
+              </button>
+            </div>
+
+            <!-- KYC -->
+            <div class="glass-panel p-4 border border-yellow-500/20 relative flex items-center justify-between flex-1 group">
+              <div>
+                <h3 class="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1 flex items-center gap-1.5 group/tooltip relative w-max cursor-help border-b border-dotted border-white/30 pb-0.5">
+                  KYC Pendientes
+                  <span class="w-1 h-1 rounded-full bg-white/50"></span>
+                  <div class="absolute bottom-full left-0 mb-2 hidden group-hover/tooltip:block bg-[#0B0E14] border border-white/20 p-2.5 rounded text-[10px] text-white/80 w-48 normal-case z-10 shadow-[0_4px_20px_rgba(0,0,0,0.5)] font-normal">
+                    Usuarios en espera de validacion de identidad y domicilio.
+                  </div>
+                </h3>
+                <div class="flex items-baseline gap-2">
+                  <span class="text-xl font-bold text-white font-mono">{{ stats()?.kycPendientes }}</span>
+                  <span class="text-xs text-white/50">Usuarios</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Seguridad -->
+            <div class="glass-panel p-4 border border-red-500/20 bg-red-500/5 relative flex items-center justify-between flex-1 group">
+              <div>
+                <h3 class="text-[10px] font-bold text-red-400/70 uppercase tracking-widest mb-1 flex items-center gap-1.5 group/tooltip relative w-max cursor-help border-b border-dotted border-red-500/30 pb-0.5">
+                  Seguridad
+                  <span class="w-1 h-1 rounded-full bg-red-500/50"></span>
+                  <div class="absolute bottom-full left-0 mb-2 hidden group-hover/tooltip:block bg-[#0B0E14] border border-red-500/20 p-2.5 rounded text-[10px] text-white/80 w-48 normal-case z-10 shadow-[0_4px_20px_rgba(0,0,0,0.5)] font-normal">
+                    Alertas criticas o medias registradas en la auditoria del sistema.
+                  </div>
+                </h3>
+                <div class="flex items-baseline gap-2">
+                  <span class="text-sm font-bold text-white">{{ stats()?.alertasSeguridad }} Alertas Medias/Altas</span>
+                </div>
+              </div>
+              <button routerLink="/app/admin/audit" class="bg-red-500/20 text-red-400 border border-red-500/50 hover:bg-red-500 hover:text-white px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition-colors">
+                Auditoria
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Main Chart -->
+      <div class="glass-panel flex-1 flex flex-col p-6 min-h-[400px]">
+        <div class="flex justify-between items-center mb-6 shrink-0">
+          <h3 class="font-bold text-white uppercase tracking-widest flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-newera-primary shadow-[0_0_8px_rgba(37,99,235,0.8)]"></span>
+            Flujo de Ingresos Netos (Broker P&L)
+          </h3>
+          <div class="flex flex-wrap gap-1 bg-black/40 border border-white/10 rounded-lg p-1">
+            <button class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-all bg-white/10 text-white shadow">30 Dias</button>
+            <button class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-all text-white/50 hover:text-white">3 Meses</button>
+            <button class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-all text-white/50 hover:text-white">Este Ano</button>
+          </div>
+        </div>
+        
+        <div #chartContainer class="flex-1 w-full rounded overflow-hidden"></div>
+      </div>
+
+    </div>
+  

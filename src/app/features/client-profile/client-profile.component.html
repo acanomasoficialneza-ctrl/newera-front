@@ -1,0 +1,248 @@
+<div class="h-full p-6 flex flex-col items-center animate-in fade-in duration-300 overflow-y-auto relative">
+      
+  <!-- Toast Notification -->
+  <div *ngIf="toastMessage" class="fixed bottom-4 right-4 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
+    <div class="glass-panel bg-newera-profit/10 border border-newera-profit/30 px-4 py-3 flex items-center gap-3 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+      <svg class="w-5 h-5 text-newera-profit" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span class="text-sm font-semibold text-white">{{ toastMessage }}</span>
+    </div>
+  </div>
+
+  <div class="w-full max-w-4xl flex flex-col gap-6">
+    <div class="flex justify-between items-center pb-4 border-b border-white/5">
+      <div>
+        <h3 class="text-sm font-bold text-white uppercase tracking-widest">Mi Perfil</h3>
+        <p class="text-xs text-newera-text-muted mt-1">Gestiona tu identidad y datos de cumplimiento.</p>
+      </div>
+      <div class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border bg-black/40"
+            [ngClass]="{
+              'text-green-400 border-green-500/30': selectedClient.estadoKyc === 'APROBADO',
+              'text-yellow-400 border-yellow-500/30': selectedClient.estadoKyc === 'PENDIENTE',
+              'text-red-400 border-red-500/30': selectedClient.estadoKyc === 'RECHAZADO'
+            }">
+        {{ selectedClient.estadoKyc === 'APROBADO' ? 'VERIFICADO' : (selectedClient.estadoKyc === 'PENDIENTE' ? 'PENDIENTE' : 'DENEGADO') }}
+      </div>
+    </div>
+
+    <!-- Foto de Perfil -->
+    <div class="flex flex-col items-center justify-center p-6 bg-black/30 border border-white/5 rounded-lg">
+      <div class="w-32 h-32 rounded-full bg-gradient-to-br from-newera-primary/20 to-black border-2 border-newera-primary/50 flex items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.2)] mb-3 relative overflow-hidden group">
+          <ng-container *ngIf="urlFotoPerfilBlob; else noFotoKyc">
+            <img [src]="urlFotoPerfilBlob" class="w-full h-full object-cover" onerror="this.src='assets/fotoGenerica.png'; this.onerror=null;">
+          </ng-container>
+          <ng-template #noFotoKyc>
+            <svg class="w-16 h-16 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+          </ng-template>
+          <div class="absolute inset-0 bg-black/60 hidden md:flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity">
+            <button (click)="openFullscreenImage(urlFotoPerfilBlob || 'assets/fotoGenerica.png')" class="p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors" title="Ver Pantalla Completa">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+            </button>
+            <label class="p-2 bg-newera-primary/40 hover:bg-newera-primary/60 rounded-full text-white cursor-pointer transition-colors" title="Actualizar Foto">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+              <input type="file" class="hidden" accept="image/*" (change)="uploadFotoPerfil($event)">
+            </label>
+          </div>
+      </div>
+      <!-- Opciones Móvil -->
+      <div class="flex md:hidden gap-4 mt-3">
+        <button (click)="openFullscreenImage(urlFotoPerfilBlob || 'assets/fotoGenerica.png')" class="flex items-center justify-center gap-2 px-3 py-1.5 bg-white/10 rounded-full text-white text-[10px] font-bold uppercase tracking-widest">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+          Ver
+        </button>
+        <label class="flex items-center justify-center gap-2 px-3 py-1.5 bg-newera-primary/40 rounded-full text-white text-[10px] font-bold uppercase tracking-widest cursor-pointer">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+          Subir
+          <input type="file" class="hidden" accept="image/*" (change)="uploadFotoPerfil($event)">
+        </label>
+      </div>
+      <h4 class="text-xs font-bold text-white/50 uppercase tracking-widest mt-3">Foto de Perfil</h4>
+    </div>
+
+    <!-- Datos del Perfil -->
+    <div class="bg-black/30 border border-white/5 rounded-lg p-6">
+      <h3 class="text-xs font-bold text-white/50 uppercase tracking-widest mb-4">Mis Datos Personales</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="col-span-1 md:col-span-2">
+          <label class="text-[10px] text-newera-text-muted uppercase tracking-wider block mb-1">Nombre Completo</label>
+          <input type="text" [(ngModel)]="selectedClient.name" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-newera-primary">
+        </div>
+        <div>
+          <label class="text-[10px] text-newera-text-muted uppercase tracking-wider block mb-1">Nombre de Pila</label>
+          <input type="text" [(ngModel)]="selectedClient.nombrePila" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-newera-primary">
+        </div>
+        <div>
+          <label class="text-[10px] text-newera-text-muted uppercase tracking-wider block mb-1">Teléfono</label>
+          <input type="text" [(ngModel)]="selectedClient.telefono" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-newera-primary">
+        </div>
+        <div>
+          <label class="text-[10px] text-newera-text-muted uppercase tracking-wider block mb-1">Correo Electrónico</label>
+          <input type="text" [(ngModel)]="selectedClient.email" disabled class="w-full bg-black/20 border border-white/5 rounded px-3 py-2 text-white/50 text-sm cursor-not-allowed">
+        </div>
+        <div>
+          <label class="text-[10px] text-newera-text-muted uppercase tracking-wider block mb-1">Contraseña</label>
+          <input type="text" [(ngModel)]="selectedClient.password" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-newera-primary">
+        </div>
+        <div>
+          <label class="text-[10px] text-newera-text-muted uppercase tracking-wider block mb-1">Fecha de Nacimiento</label>
+          <input type="date" [(ngModel)]="selectedClient.fechaNacimiento" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-newera-primary [color-scheme:dark]">
+        </div>
+        <div>
+          <label class="text-[10px] text-newera-text-muted uppercase tracking-wider block mb-1">Estado de Residencia</label>
+          <select [(ngModel)]="selectedClient.estadoResidencia" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-newera-primary cursor-pointer">
+            <option class="bg-[#111] text-white" value="">Seleccione un estado</option>
+            <option class="bg-[#111] text-white" *ngFor="let state of statesOfMexico" [value]="state">{{ state }}</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] text-newera-text-muted uppercase tracking-wider block mb-1">Nivel de Experiencia</label>
+          <select [(ngModel)]="selectedClient.experienciaTrading" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-newera-primary cursor-pointer">
+            <option class="bg-[#111] text-white" value="PRINCIPIANTE">Principiante (Menos de 1 año)</option>
+            <option class="bg-[#111] text-white" value="INTERMEDIO">Intermedio (1 a 3 años)</option>
+            <option class="bg-[#111] text-white" value="AVANZADO">Avanzado (Más de 3 años)</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-[10px] text-newera-text-muted uppercase tracking-wider block mb-1">Profesión</label>
+          <input type="text" [(ngModel)]="selectedClient.profesion" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-newera-primary">
+        </div>
+        <div>
+          <label class="text-[10px] text-newera-text-muted uppercase tracking-wider block mb-1">Hobbie</label>
+          <input type="text" [(ngModel)]="selectedClient.hobbie" class="w-full bg-black/50 border border-white/10 rounded px-3 py-2 text-white text-sm focus:outline-none focus:border-newera-primary">
+        </div>
+        <div>
+          <label class="text-[10px] text-newera-text-muted uppercase tracking-wider block mb-1">Fecha de Registro</label>
+          <input type="text" [value]="selectedClient.fechaRegistro | date:'medium'" readonly disabled class="w-full bg-black/20 border border-white/5 rounded px-3 py-2 text-white/50 text-sm cursor-not-allowed">
+        </div>
+      </div>
+      <div class="pt-6 flex justify-end">
+        <button (click)="requestConfirm('save')" class="bg-newera-primary hover:bg-newera-primary/90 text-black px-6 py-2.5 rounded text-xs font-bold transition-colors shadow-[0_0_15px_rgba(37,99,235,0.4)]">
+          GUARDAR DATOS
+        </button>
+      </div>
+    </div>
+
+    <!-- Documentos KYC -->
+    <div class="space-y-4">
+      <h3 class="text-xs font-bold text-white/50 uppercase tracking-widest mb-2 px-2">Mis Documentos (KYC)</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Identificación Frente -->
+        <div class="bg-black/30 border border-white/5 rounded-lg p-3">
+          <h4 class="text-xs font-bold text-white/50 uppercase tracking-widest mb-3">Identificación (Frente)</h4>
+          <div class="w-full aspect-[1.58] max-h-64 bg-white/5 rounded flex items-center justify-center border border-dashed border-white/20 relative group overflow-hidden cursor-pointer hover:border-newera-primary transition-colors">
+              <ng-container *ngIf="urlIneFrenteBlob; else noFrente">
+                <img [src]="urlIneFrenteBlob" class="w-full h-full object-contain" onerror="this.src='assets/credencial.png'; this.onerror=null;">
+              </ng-container>
+              <ng-template #noFrente>
+                <div class="absolute inset-0 bg-gradient-to-tr from-blue-900/40 to-transparent"></div>
+                <svg class="w-10 h-10 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z"></path></svg>
+              </ng-template>
+              <div class="absolute inset-0 bg-black/60 hidden md:flex flex-col gap-3 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="flex gap-4">
+                  <button (click)="openFullscreenImage(urlIneFrenteBlob || 'assets/credencial.png')" class="p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors" title="Ver Pantalla Completa">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                  </button>
+                  <label class="p-3 bg-newera-primary/40 hover:bg-newera-primary/60 rounded-full text-white cursor-pointer transition-colors" title="Actualizar Frente">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    <input type="file" class="hidden" accept="image/*" (change)="uploadDocumento($event, 'frente')">
+                  </label>
+                </div>
+                <span class="text-[10px] text-white/70 font-bold tracking-widest uppercase">Actualizar Frente</span>
+              </div>
+          </div>
+          <!-- Opciones Móvil -->
+          <div class="flex md:hidden justify-center gap-4 mt-3">
+            <button (click)="openFullscreenImage(urlIneFrenteBlob || 'assets/credencial.png')" class="flex items-center justify-center gap-2 px-3 py-1.5 bg-white/10 rounded-full text-white text-[10px] font-bold uppercase tracking-widest">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+              Ver
+            </button>
+            <label class="flex items-center justify-center gap-2 px-3 py-1.5 bg-newera-primary/40 rounded-full text-white text-[10px] font-bold uppercase tracking-widest cursor-pointer">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+              Subir Frente
+              <input type="file" class="hidden" accept="image/*" (change)="uploadDocumento($event, 'frente')">
+            </label>
+          </div>
+        </div>
+        <!-- Identificación Reverso -->
+        <div class="bg-black/30 border border-white/5 rounded-lg p-3">
+          <h4 class="text-xs font-bold text-white/50 uppercase tracking-widest mb-3">Identificación (Reverso)</h4>
+          <div class="w-full aspect-[1.58] max-h-64 bg-white/5 rounded flex items-center justify-center border border-dashed border-white/20 relative group overflow-hidden cursor-pointer hover:border-newera-primary transition-colors">
+              <ng-container *ngIf="urlIneReversoBlob; else noReverso">
+                <img [src]="urlIneReversoBlob" class="w-full h-full object-contain" onerror="this.src='assets/credencial.png'; this.onerror=null;">
+              </ng-container>
+              <ng-template #noReverso>
+                <div class="absolute inset-0 bg-gradient-to-tr from-blue-900/20 to-transparent"></div>
+                <svg class="w-10 h-10 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 21h7a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v11m0 5l4.879-4.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242z"></path></svg>
+              </ng-template>
+              <div class="absolute inset-0 bg-black/60 hidden md:flex flex-col gap-3 items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <div class="flex gap-4">
+                  <button (click)="openFullscreenImage(urlIneReversoBlob || 'assets/credencial.png')" class="p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors" title="Ver Pantalla Completa">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                  </button>
+                  <label class="p-3 bg-newera-primary/40 hover:bg-newera-primary/60 rounded-full text-white cursor-pointer transition-colors" title="Actualizar Reverso">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    <input type="file" class="hidden" accept="image/*" (change)="uploadDocumento($event, 'reverso')">
+                  </label>
+                </div>
+                <span class="text-[10px] text-white/70 font-bold tracking-widest uppercase">Actualizar Reverso</span>
+              </div>
+          </div>
+          <!-- Opciones Móvil -->
+          <div class="flex md:hidden justify-center gap-4 mt-3">
+            <button (click)="openFullscreenImage(urlIneReversoBlob || 'assets/credencial.png')" class="flex items-center justify-center gap-2 px-3 py-1.5 bg-white/10 rounded-full text-white text-[10px] font-bold uppercase tracking-widest">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+              Ver
+            </button>
+            <label class="flex items-center justify-center gap-2 px-3 py-1.5 bg-newera-primary/40 rounded-full text-white text-[10px] font-bold uppercase tracking-widest cursor-pointer">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+              Subir Reverso
+              <input type="file" class="hidden" accept="image/*" (change)="uploadDocumento($event, 'reverso')">
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal de Confirmación -->
+  <div *ngIf="isConfirmOpen" class="fixed inset-0 z-[70] flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-md" (click)="cancelConfirm()"></div>
+    <div class="relative bg-[#0f1219] border border-newera-primary/30 rounded-xl p-6 w-[90%] max-w-sm shadow-[0_0_30px_rgba(37,99,235,0.15)] animate-in zoom-in-95 duration-200 text-center">
+      
+      <div class="w-12 h-12 rounded-full bg-newera-primary/10 flex items-center justify-center mx-auto mb-3 border border-newera-primary/30">
+        <svg class="w-6 h-6 text-newera-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+
+      <div>
+        <h3 class="text-lg font-bold text-white mb-1">Confirmar Acción</h3>
+        <p class="text-sm text-white/60 mb-6">
+          ¿Estás seguro de que deseas guardar los cambios en tu perfil?
+        </p>
+      </div>
+
+      <div class="flex gap-3">
+        <button (click)="cancelConfirm()" class="px-4 py-2 rounded text-xs font-bold text-white/70 hover:text-white hover:bg-white/5 transition-colors flex-1">
+          CANCELAR
+        </button>
+        <button (click)="confirmAction()" class="bg-newera-primary text-black hover:bg-white px-4 py-2 rounded text-xs font-bold transition-colors shadow-[0_0_15px_rgba(37,99,235,0.4)] hover:shadow-[0_0_20px_rgba(255,255,255,0.5)] flex-1">
+          SÍ, GUARDAR
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Image Modal -->
+  <div *ngIf="isFullscreenImageOpen" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 backdrop-blur-sm p-4 animate-in fade-in duration-200" (click)="closeFullscreenImage()">
+    <button (click)="closeFullscreenImage()" class="absolute top-6 right-6 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded-full p-2 transition-all">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    </button>
+    <img [src]="fullscreenImageUrl" class="max-w-full max-h-full object-contain rounded-lg shadow-2xl" (click)="$event.stopPropagation()">
+  </div>
+
+</div>

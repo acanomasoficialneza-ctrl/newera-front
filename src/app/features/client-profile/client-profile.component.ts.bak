@@ -1,0 +1,295 @@
+import { Component, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-client-profile',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="h-full p-6 flex flex-col items-center animate-in fade-in duration-300 overflow-y-auto relative">
+      
+      <!-- Toast Notification -->
+      <div *ngIf="toastMessage" class="fixed bottom-4 right-4 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
+        <div class="glass-panel bg-newera-profit/10 border border-newera-profit/30 px-4 py-3 flex items-center gap-3 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
+          <svg class="w-5 h-5 text-newera-profit" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="text-sm font-semibold text-white">{{ toastMessage }}</span>
+        </div>
+      </div>
+
+      <!-- Centralized Profile Panel -->
+      <div class="w-full max-w-4xl flex flex-col gap-6">
+        
+        <div class="glass-panel p-8">
+          
+          <!-- Big Profile Picture Section at the Top -->
+          <div class="flex flex-col items-center justify-center border-b border-white/5 pb-8 mb-8">
+            <div class="w-32 h-32 rounded-full border-4 border-dashed border-newera-primary/50 flex flex-col items-center justify-center bg-newera-primary/5 cursor-pointer hover:bg-newera-primary/20 hover:scale-105 transition-all relative overflow-hidden group mb-4">
+              <svg class="w-10 h-10 text-newera-primary group-hover:scale-110 transition-transform mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+              <span class="text-[10px] text-newera-primary font-bold uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity absolute bottom-3">Subir Foto</span>
+            </div>
+            <h2 class="text-2xl font-black text-white">Juan Pérez López</h2>
+            <p class="text-sm text-newera-text-muted mt-1 uppercase tracking-widest">Trader Intermedio</p>
+          </div>
+
+          <div class="mb-6">
+            <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-1">Datos Personales</h3>
+            <p class="text-xs text-newera-text-muted">Configura tu identidad pública e información de contacto.</p>
+          </div>
+
+          <form class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              <div>
+                <label class="block text-xs text-newera-text-muted uppercase tracking-wider mb-2">Nombre de Pila</label>
+                <input type="text" value="Juan" class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-newera-primary focus:outline-none transition-colors">
+              </div>
+
+              <div>
+                <label class="block text-xs text-newera-text-muted uppercase tracking-wider mb-2">Nombre Completo</label>
+                <input type="text" value="Juan Pérez López" class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-newera-primary focus:outline-none transition-colors">
+              </div>
+
+              <div>
+                <label class="block text-xs text-newera-text-muted uppercase tracking-wider mb-2">Teléfono</label>
+                <input type="tel" value="+52 555 123 4567" class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-newera-primary focus:outline-none transition-colors">
+              </div>
+
+              <div>
+                <label class="block text-xs text-newera-text-muted uppercase tracking-wider mb-2">Fecha de Nacimiento</label>
+                <input type="date" value="1990-05-15" class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-newera-primary focus:outline-none transition-colors [color-scheme:dark]">
+              </div>
+
+              <div>
+                <label class="block text-xs text-newera-text-muted uppercase tracking-wider mb-2">Estado de Residencia</label>
+                <div class="relative">
+                  <select class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-newera-primary focus:outline-none transition-colors appearance-none cursor-pointer">
+                    <option value="" disabled>Selecciona un estado...</option>
+                    <option value="Aguascalientes">Aguascalientes</option>
+                    <option value="Baja California">Baja California</option>
+                    <option value="Baja California Sur">Baja California Sur</option>
+                    <option value="Campeche">Campeche</option>
+                    <option value="Chiapas">Chiapas</option>
+                    <option value="Chihuahua">Chihuahua</option>
+                    <option value="Ciudad de México" selected>Ciudad de México</option>
+                    <option value="Coahuila">Coahuila</option>
+                    <option value="Colima">Colima</option>
+                    <option value="Durango">Durango</option>
+                    <option value="Guanajuato">Guanajuato</option>
+                    <option value="Guerrero">Guerrero</option>
+                    <option value="Hidalgo">Hidalgo</option>
+                    <option value="Jalisco">Jalisco</option>
+                    <option value="Estado de México">Estado de México</option>
+                    <option value="Michoacán">Michoacán</option>
+                    <option value="Morelos">Morelos</option>
+                    <option value="Nayarit">Nayarit</option>
+                    <option value="Nuevo León">Nuevo León</option>
+                    <option value="Oaxaca">Oaxaca</option>
+                    <option value="Puebla">Puebla</option>
+                    <option value="Querétaro">Querétaro</option>
+                    <option value="Quintana Roo">Quintana Roo</option>
+                    <option value="San Luis Potosí">San Luis Potosí</option>
+                    <option value="Sinaloa">Sinaloa</option>
+                    <option value="Sonora">Sonora</option>
+                    <option value="Tabasco">Tabasco</option>
+                    <option value="Tamaulipas">Tamaulipas</option>
+                    <option value="Tlaxcala">Tlaxcala</option>
+                    <option value="Veracruz">Veracruz</option>
+                    <option value="Yucatán">Yucatán</option>
+                    <option value="Zacatecas">Zacatecas</option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-white/50">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs text-newera-text-muted uppercase tracking-wider mb-2">Profesión</label>
+                <input type="text" value="Ingeniero de Software" class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-newera-primary focus:outline-none transition-colors">
+              </div>
+
+              <div>
+                <label class="block text-xs text-newera-text-muted uppercase tracking-wider mb-2">Nivel de Experiencia (Trading)</label>
+                <div class="relative">
+                  <select class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-newera-primary focus:outline-none transition-colors appearance-none cursor-pointer">
+                    <option value="Principiante">Principiante (0-1 años)</option>
+                    <option value="Intermedio" selected>Intermedio (1-3 años)</option>
+                    <option value="Avanzado">Avanzado (+3 años)</option>
+                  </select>
+                  <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-white/50">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs text-newera-text-muted uppercase tracking-wider mb-2">Hobbie / Pasatiempo</label>
+                <input type="text" value="Lectura y Ajedrez" class="w-full bg-black/50 border border-white/10 rounded-lg p-3 text-white focus:border-newera-primary focus:outline-none transition-colors">
+              </div>
+              
+              <!-- Assigned Executives (Read Only) -->
+              <div class="md:col-span-2">
+                <label class="block text-xs text-newera-text-muted uppercase tracking-wider mb-2 flex items-center gap-2">
+                  Ejecutivo(s) Asignado(s)
+                  <svg class="w-3 h-3 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </label>
+                
+                <div class="relative group" tabindex="0">
+                  <div class="bg-black/20 border border-white/5 rounded-lg px-3 py-3 text-white cursor-pointer w-full flex justify-between items-center transition-colors hover:border-white/30 hover:bg-black/40">
+                    <span class="truncate text-sm">
+                      {{ manager.length === 0 ? 'Sin Asignar' : (manager.length === 1 ? manager[0] : manager.length + ' Asignados') }}
+                    </span>
+                    <svg class="w-4 h-4 text-white/50 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                  </div>
+                  <!-- Dropdown List (Visual Only) -->
+                  <div class="absolute top-full left-0 mt-1 w-full bg-black/90 backdrop-blur-xl border border-white/10 rounded-lg shadow-xl hidden group-hover:flex group-focus-within:flex z-50 p-2 flex-col gap-1">
+                    <div *ngIf="manager.length === 0" class="text-xs text-white/50 p-2 text-center">Nadie asignado aún</div>
+                    <div *ngFor="let m of manager" class="flex items-center gap-3 text-sm text-white p-2 rounded bg-white/5 border border-white/5">
+                       <div class="w-2 h-2 rounded-full bg-newera-primary shadow-[0_0_8px_rgba(37,99,235,0.8)]"></div>
+                       {{ m }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Accesos y Credenciales Section -->
+            <div class="border-t border-white/5 pt-8 mt-8">
+              <div class="mb-6">
+                <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-1">Credenciales de Acceso</h3>
+                <p class="text-xs text-newera-text-muted">Gestiona tu correo y contraseña de inicio de sesión.</p>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-xs text-newera-text-muted uppercase tracking-wider mb-2">Correo Electrónico</label>
+                  <input type="email" value="cliente@newera.com" disabled class="w-full bg-black/20 border border-white/5 rounded-lg p-3 text-white/50 cursor-not-allowed">
+                </div>
+                
+                <div>
+                  <label class="block text-xs text-newera-text-muted uppercase tracking-wider mb-2">Contraseña</label>
+                  <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="password" value="********" disabled class="w-full sm:flex-1 bg-black/20 border border-white/5 rounded-lg p-3 text-white/50 cursor-not-allowed">
+                    <button type="button" (click)="requestConfirm('password')" class="bg-white/10 text-white font-bold text-xs uppercase tracking-widest px-6 py-3 rounded-lg hover:bg-white/20 transition-all border border-white/10 whitespace-nowrap">
+                      Solicitar Cambio
+                    </button>
+                  </div>
+                  <p class="text-[10px] text-newera-text-muted mt-2">* Se enviará un enlace seguro a tu correo.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- KYC / Credencial de Elector Section -->
+            <div class="border-t border-white/5 pt-8 mt-8">
+              <div class="mb-6">
+                <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-1">Credenciales de Elector (INE)</h3>
+                <p class="text-xs text-newera-text-muted">Sube tu identificación oficial vigente para comprobar tu identidad.</p>
+              </div>
+              
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <!-- Frente -->
+                <div class="border-2 border-dashed border-white/10 rounded-xl p-6 flex flex-col items-center justify-center text-center hover:border-newera-primary/50 hover:bg-newera-primary/5 cursor-pointer transition-all group">
+                  <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-white/50 group-hover:text-newera-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                  </div>
+                  <p class="text-sm font-bold text-white">Subir Frente</p>
+                  <p class="text-xs text-white/40 mt-1">Sube la parte frontal de tu INE (JPG, PNG)</p>
+                </div>
+                <!-- Reverso -->
+                <div class="border-2 border-dashed border-white/10 rounded-xl p-6 flex flex-col items-center justify-center text-center hover:border-newera-primary/50 hover:bg-newera-primary/5 cursor-pointer transition-all group">
+                  <div class="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-white/50 group-hover:text-newera-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                  </div>
+                  <p class="text-sm font-bold text-white">Subir Reverso</p>
+                  <p class="text-xs text-white/40 mt-1">Sube el reverso de tu INE (JPG, PNG)</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="pt-8 mt-8 border-t border-white/5 flex justify-end">
+              <button (click)="requestConfirm('save')" type="button" class="bg-newera-primary text-black font-bold uppercase tracking-widest text-xs px-10 py-4 rounded-lg hover:bg-white transition-all shadow-[0_0_15px_rgba(37,99,235,0.4)]">
+                Guardar Cambios
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+
+      <!-- Modal de Confirmación -->
+      <div *ngIf="isConfirmOpen" class="fixed inset-0 z-[70] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-md" (click)="cancelConfirm()"></div>
+        <div class="glass-panel w-full max-w-sm bg-[#111] relative z-10 p-6 flex flex-col gap-5 animate-in zoom-in-95 duration-200 border border-newera-primary/30 shadow-[0_0_30px_rgba(37,99,235,0.15)] text-center">
+          
+          <div class="w-12 h-12 rounded-full bg-newera-primary/10 flex items-center justify-center mx-auto mb-2 border border-newera-primary/30">
+            <svg class="w-6 h-6 text-newera-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+
+          <div>
+            <h3 class="text-lg font-bold text-white mb-1">Confirmar Acción</h3>
+            <p class="text-sm text-white/60">
+              {{ confirmActionType === 'password' ? '¿Estás seguro de que deseas solicitar un enlace de cambio de contraseña?' : '¿Estás seguro de que deseas guardar los cambios en tu perfil?' }}
+            </p>
+          </div>
+
+          <div class="flex gap-3 pt-2">
+            <button (click)="cancelConfirm()" class="flex-1 py-2.5 rounded border border-white/20 text-white/70 text-sm font-bold hover:bg-white/5 transition-colors uppercase tracking-widest">
+              No, Cancelar
+            </button>
+            <button (click)="confirmAction()" class="flex-1 py-2.5 rounded bg-newera-primary text-white text-sm font-bold hover:bg-blue-600 transition-colors uppercase tracking-widest shadow-[0_0_15px_rgba(37,99,235,0.4)]">
+              Sí, Confirmar
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  `
+})
+export class ClientProfileComponent {
+  manager: string[] = ['Ana S.', 'Carlos R.'];
+  
+  toastMessage: string | null = null;
+  isConfirmOpen = false;
+  confirmActionType: 'password' | 'save' | null = null;
+
+  requestConfirm(type: 'password' | 'save') {
+    this.confirmActionType = type;
+    this.isConfirmOpen = true;
+  }
+
+  cancelConfirm() {
+    this.isConfirmOpen = false;
+    this.confirmActionType = null;
+  }
+
+  confirmAction() {
+    if (this.confirmActionType === 'password') {
+      this.enviarCorreo();
+    } else if (this.confirmActionType === 'save') {
+      this.guardarCambios();
+    }
+    this.isConfirmOpen = false;
+    this.confirmActionType = null;
+  }
+
+  enviarCorreo() {
+    this.showToast('Se ha enviado un enlace de recuperación a tu correo electrónico.');
+  }
+
+  guardarCambios() {
+    this.showToast('Datos de perfil actualizados correctamente.');
+  }
+
+  showToast(msg: string) {
+    this.toastMessage = msg;
+    setTimeout(() => {
+      this.toastMessage = null;
+    }, 3000);
+  }
+}
