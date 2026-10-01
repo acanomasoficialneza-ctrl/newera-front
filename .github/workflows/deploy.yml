@@ -38,4 +38,4 @@ jobs:
       - name: Sync Frontend Build (Prod)
         if: github.ref == 'refs/heads/prod'
         run: |
-          rsync -avz --delete -e "ssh -p ${{ secrets.SSH_PORT }}" ./dist/newera-front/browser/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/produccion/newera-app/frontend/
+          rsync -avz --delete -e "ssh -p ${{ secrets.SSH_PORT }}" ./dist/*/browser/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/produccion/newera-app/frontend/
