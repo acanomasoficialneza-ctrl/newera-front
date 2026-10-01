@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://65.38.98.77:8000/api/v1' // Actualizado para Producción 
+  apiUrl: 'https://65.38.98.77/api/v1' // Proxy a través de Nginx por SSL
 };
