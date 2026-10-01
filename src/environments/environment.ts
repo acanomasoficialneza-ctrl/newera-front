@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://65.38.98.77/api/v1' // Proxy a través de Nginx por SSL
+  apiUrl: '/api/v1' // Ruta relativa (Nginx se encarga de redirigir)
 };
