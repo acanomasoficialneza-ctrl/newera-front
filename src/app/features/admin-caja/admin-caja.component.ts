@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { CajaService, TransaccionCaja } from '../../core/services/caja.service';
 
 interface RequestModel {
@@ -19,7 +20,7 @@ interface RequestModel {
 @Component({
   selector: 'app-admin-caja',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   providers: [],
   templateUrl: './admin-caja.component.html'
 })
@@ -31,6 +32,7 @@ export class AdminCajaComponent implements OnInit {
   showConfirmModal: boolean = false;
   confirmAction: 'APROBAR' | 'RECHAZAR' | null = null;
   selectedRequest: RequestModel | null = null;
+  confirmNote: string = '';
   toastMessage: string | null = null;
   
   requests: RequestModel[] = [];
@@ -96,6 +98,7 @@ export class AdminCajaComponent implements OnInit {
   openConfirm(req: RequestModel, action: 'APROBAR' | 'RECHAZAR') {
     this.selectedRequest = req;
     this.confirmAction = action;
+    this.confirmNote = '';
     this.showConfirmModal = true;
   }
 
@@ -103,6 +106,7 @@ export class AdminCajaComponent implements OnInit {
     this.showConfirmModal = false;
     this.selectedRequest = null;
     this.confirmAction = null;
+    this.confirmNote = '';
   }
 
   confirmActionExecute() {
@@ -111,7 +115,7 @@ export class AdminCajaComponent implements OnInit {
        const idAdmin = 1; 
 
        if (this.confirmAction === 'APROBAR') {
-         this.cajaService.aprobarTransaccion(this.selectedRequest.id, idAdmin).subscribe({
+         this.cajaService.aprobarTransaccion(this.selectedRequest.id, idAdmin, this.confirmNote).subscribe({
            next: () => {
              this.showToast(`Petición APROBADA correctamente`);
              if (this.activeTab === 'PENDIENTES') this.loadPendientes();
@@ -123,7 +127,7 @@ export class AdminCajaComponent implements OnInit {
            }
          });
        } else {
-         this.cajaService.rechazarTransaccion(this.selectedRequest.id, idAdmin).subscribe({
+         this.cajaService.rechazarTransaccion(this.selectedRequest.id, idAdmin, this.confirmNote).subscribe({
            next: () => {
              this.showToast(`Petición RECHAZADA correctamente`);
              if (this.activeTab === 'PENDIENTES') this.loadPendientes();

@@ -91,9 +91,10 @@ export class AdminCrmService {
     return this.http.post<any>(`${environment.apiUrl}/auth/reset`, { correo });
   }
 
-  cerrarPosicion(idApuesta: string, gananciaPerdida: number): Observable<any> {
-    // Note: Assuming Apuesta Controller exists and maps to /apuestas
-    return this.http.post<any>(`${environment.apiUrl}/apuestas/${idApuesta}/cerrar?gananciaPerdida=${gananciaPerdida}`, {});
+  cerrarPosicion(idApuesta: string | number, gananciaPerdida: number, idAdmin?: number): Observable<any> {
+    let url = `${environment.apiUrl}/apuestas/${idApuesta}/cerrar?gananciaPerdida=${gananciaPerdida}`;
+    if (idAdmin) url += `&idAdmin=${idAdmin}`;
+    return this.http.post<any>(url, {});
   }
 
   actualizarPosicion(idApuesta: string, payload: any): Observable<any> {
@@ -106,5 +107,13 @@ export class AdminCrmService {
 
   createNota(payload: any): Observable<any> {
     return this.http.post<any>(`${environment.apiUrl}/crm`, payload);
+  }
+
+  checkCorreo(correo: string): Observable<{exists: boolean}> {
+    return this.http.get<{exists: boolean}>(`${this.apiUrl}/check-correo?correo=${encodeURIComponent(correo)}`);
+  }
+
+  checkTelefono(telefono: string): Observable<{exists: boolean}> {
+    return this.http.get<{exists: boolean}>(`${this.apiUrl}/check-telefono?telefono=${encodeURIComponent(telefono)}`);
   }
 }

@@ -90,13 +90,13 @@ import { AuthService } from '../../core/services/auth.service';
                 
                 <!-- INVERSION -->
                 <td class="px-6 py-4 font-mono text-right text-newera-text-muted">
-                    <span>$</span>{{ pos.montoApuesta | number:'1.2-2' }}
+                    <span>$</span>{{ pos.montoApuesta | number:'1.2-6' }}
                 </td>
                 
                 <!-- P&L FINAL -->
                 <td class="px-6 py-4 font-mono font-bold text-right"
                     [ngClass]="pos.gananciaPerdida >= 0 ? 'text-newera-profit' : 'text-newera-loss'">
-                    {{ pos.gananciaPerdida >= 0 ? '+$' : '-$' }}{{ (pos.gananciaPerdida >= 0 ? pos.gananciaPerdida : (pos.gananciaPerdida * -1)) | number:'1.2-2' }}
+                    {{ pos.gananciaPerdida >= 0 ? '+$' : '-$' }}{{ (pos.gananciaPerdida >= 0 ? pos.gananciaPerdida : (pos.gananciaPerdida * -1)) | number:'1.2-6' }}
                 </td>
                 
                 <!-- ESTADO -->
@@ -144,14 +144,14 @@ import { AuthService } from '../../core/services/auth.service';
               <div class="flex justify-between items-end border-t border-white/5 pt-3">
                 <div class="flex flex-col">
                   <span class="text-[9px] text-newera-text-muted uppercase tracking-wider mb-0.5">Inversión</span>
-                  <span class="text-newera-text-muted font-mono text-sm"><span>$</span>{{ pos.montoApuesta | number:'1.2-2' }}</span>
+                  <span class="text-newera-text-muted font-mono text-sm"><span>$</span>{{ pos.montoApuesta | number:'1.2-6' }}</span>
                   <span class="text-white/30 font-mono text-[9px] mt-0.5">ORD-{{ pos.idApuestaCliente }}</span>
                 </div>
                 <div class="flex flex-col items-end">
                   <span class="text-[9px] text-newera-text-muted uppercase tracking-wider mb-0.5">P&L Final</span>
                   <span class="font-mono font-bold text-lg"
                         [ngClass]="pos.gananciaPerdida >= 0 ? 'text-newera-profit' : 'text-newera-loss'">
-                    {{ pos.gananciaPerdida >= 0 ? '+$' : '-$' }}{{ (pos.gananciaPerdida >= 0 ? pos.gananciaPerdida : (pos.gananciaPerdida * -1)) | number:'1.2-2' }}
+                    {{ pos.gananciaPerdida >= 0 ? '+$' : '-$' }}{{ (pos.gananciaPerdida >= 0 ? pos.gananciaPerdida : (pos.gananciaPerdida * -1)) | number:'1.2-6' }}
                   </span>
                 </div>
               </div>
@@ -200,7 +200,7 @@ import { AuthService } from '../../core/services/auth.service';
       </div>
 
       <!-- Toast Notification -->
-      <div *ngIf="toastMessage" class="fixed bottom-4 right-4 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
+      <div *ngIf="toastMessage" class="fixed bottom-4 left-4 right-4 md:left-auto md:w-auto z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
         <div class="glass-panel bg-newera-profit/10 border border-newera-profit/30 px-4 py-3 flex items-center gap-3 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
           <svg class="w-5 h-5 text-newera-profit" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

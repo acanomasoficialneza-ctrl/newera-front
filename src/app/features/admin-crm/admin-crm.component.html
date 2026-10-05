@@ -69,15 +69,15 @@
                 </td>
 
                 <td class="px-6 py-4 text-right">
-                  <span class="font-mono font-bold text-white"><span>$</span>{{ client.balance | number:'1.2-2' }}</span>
+                  <span class="font-mono font-bold text-white"><span>$</span>{{ client.balance | number:'1.2-6' }}</span>
                 </td>
                 
                 <td class="px-6 py-4 text-right hidden lg:table-cell">
-                  <span class="font-mono text-white"><span>$</span>{{ client.margenLibre | number:'1.2-2' }}</span>
+                  <span class="font-mono text-white"><span>$</span>{{ client.margenLibre | number:'1.2-6' }}</span>
                 </td>
 
                 <td class="px-6 py-4 text-right hidden xl:table-cell">
-                  <span class="font-mono text-white"><span>$</span>{{ client.margen | number:'1.2-2' }}</span>
+                  <span class="font-mono text-white"><span>$</span>{{ client.margen | number:'1.2-6' }}</span>
                 </td>
 
                 <td class="px-6 py-4 text-center hidden md:table-cell" (click)="$event.stopPropagation()">
@@ -164,15 +164,15 @@
             <div class="grid grid-cols-3 gap-3 mt-1 border-t border-white/5 pt-3">
               <div class="flex flex-col gap-1">
                 <span class="text-[9px] text-newera-text-muted uppercase tracking-wider">Balance</span>
-                <span class="font-mono font-bold text-white text-xs"><span>$</span>{{ client.balance | number:'1.2-2' }}</span>
+                <span class="font-mono font-bold text-white text-xs"><span>$</span>{{ client.balance | number:'1.2-6' }}</span>
               </div>
               <div class="flex flex-col gap-1">
                 <span class="text-[9px] text-newera-text-muted uppercase tracking-wider">M. Libre</span>
-                <span class="font-mono text-white text-xs"><span>$</span>{{ client.margenLibre | number:'1.2-2' }}</span>
+                <span class="font-mono text-white text-xs"><span>$</span>{{ client.margenLibre | number:'1.2-6' }}</span>
               </div>
               <div class="flex flex-col gap-1">
                 <span class="text-[9px] text-newera-text-muted uppercase tracking-wider">Margen</span>
-                <span class="font-mono text-white text-xs"><span>$</span>{{ client.margen | number:'1.2-2' }}</span>
+                <span class="font-mono text-white text-xs"><span>$</span>{{ client.margen | number:'1.2-6' }}</span>
               </div>
             </div>
 
@@ -349,13 +349,13 @@
                           </div>
                         </td>
                         <td class="px-4 py-3 text-right font-mono text-xs">
-                          <span>$</span>{{ pos.monto_usd | number:'1.2-2' }}
+                          <span>$</span>{{ pos.monto_usd | number:'1.2-6' }}
                         </td>
                         <td class="px-4 py-3 text-right font-mono text-xs" [ngClass]="pos.variacion >= 0 ? 'text-newera-profit' : 'text-newera-loss'">
-                          {{ pos.variacion >= 0 ? '+' : '' }}{{ pos.variacion | number:'1.4-4' }}
+                          {{ pos.variacion >= 0 ? '+' : '' }}{{ pos.variacion | number:'1.4-6' }}
                         </td>
                         <td class="px-4 py-3 text-right font-mono font-bold text-sm" [ngClass]="pos.pnl >= 0 ? 'text-newera-profit' : 'text-newera-loss'">
-                          {{ pos.pnl >= 0 ? '+' : '' }}<span>$</span>{{ pos.pnl | number:'1.2-2' }}
+                          {{ pos.pnl >= 0 ? '+' : '' }}<span>$</span>{{ pos.pnl | number:'1.2-6' }}
                         </td>
                         <td class="px-4 py-3 text-center flex justify-center gap-2">
                           <button *ngIf="pos.status === 'CERRADO'" (click)="guardarPosicionIndividual(pos)" class="bg-newera-primary/10 text-newera-primary border border-newera-primary/30 hover:bg-newera-primary hover:text-white px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-wider transition-colors">
@@ -427,14 +427,14 @@
                       <div>
                         <label class="text-[10px] text-newera-text-muted uppercase tracking-wider mb-1 block">Monto USD</label>
                         <div class="w-full bg-white/5 border border-white/5 rounded px-2 py-1 text-white text-xs font-mono">
-                          <span>$</span>{{ pos.monto_usd | number:'1.2-2' }}
+                          <span>$</span>{{ pos.monto_usd | number:'1.2-6' }}
                         </div>
                       </div>
                       <div>
                         <label class="text-[10px] text-newera-text-muted uppercase tracking-wider mb-1 block">Variación</label>
                         <div class="w-full bg-white/5 border border-white/5 rounded px-2 py-1 text-xs font-mono"
                             [ngClass]="pos.variacion >= 0 ? 'text-newera-profit' : 'text-newera-loss'">
-                          {{ pos.variacion >= 0 ? '+' : '' }}{{ pos.variacion | number:'1.4-4' }}
+                          {{ pos.variacion >= 0 ? '+' : '' }}{{ pos.variacion | number:'1.4-6' }}
                         </div>
                       </div>
                     </div>
@@ -459,7 +459,7 @@
                       <div class="text-right">
                         <label class="text-[9px] text-newera-text-muted uppercase tracking-wider block mb-0.5">Ganancia / Pérdida</label>
                         <span class="font-mono font-bold text-lg" [ngClass]="pos.pnl >= 0 ? 'text-newera-profit' : 'text-newera-loss'">
-                          {{ pos.pnl >= 0 ? '+' : '' }}<span>$</span>{{ pos.pnl | number:'1.2-2' }}
+                          {{ pos.pnl >= 0 ? '+' : '' }}<span>$</span>{{ pos.pnl | number:'1.2-6' }}
                         </span>
                       </div>
                     </div>
@@ -495,9 +495,6 @@
               <div class="bg-black/30 border border-white/5 rounded-lg p-4">
                 <div class="flex justify-between items-center mb-3">
                   <h3 class="text-xs font-bold text-white/50 uppercase tracking-widest">Asignación de Cartera</h3>
-                  <button (click)="guardarAsignacion()" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1 rounded text-[10px] font-bold transition-colors">
-                    Guardar
-                  </button>
                 </div>
                 <label class="text-[10px] text-newera-text-muted uppercase tracking-wider block mb-1 mt-4">Ejecutivos Asignados</label>
                 
@@ -538,26 +535,26 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                   <div class="flex flex-col">
                     <span class="text-[10px] text-newera-text-muted uppercase tracking-wider">Balance</span>
-                    <span class="text-lg font-bold font-mono text-white"><span>$</span>{{ selectedClient.balance | number:'1.2-2' }}</span>
+                    <span class="text-lg font-bold font-mono text-white"><span>$</span>{{ selectedClient.balance | number:'1.2-6' }}</span>
                   </div>
                   <div class="flex flex-col">
                     <span class="text-[10px] text-newera-text-muted uppercase tracking-wider">Margen Libre</span>
-                    <span class="text-lg font-bold font-mono text-white"><span>$</span>{{ selectedClient.margenLibre | number:'1.2-2' }}</span>
+                    <span class="text-lg font-bold font-mono text-white"><span>$</span>{{ selectedClient.margenLibre | number:'1.2-6' }}</span>
                   </div>
                   <div class="flex flex-col">
                     <span class="text-[10px] text-newera-text-muted uppercase tracking-wider">Margen</span>
-                    <span class="text-lg font-bold font-mono text-white"><span>$</span>{{ selectedClient.margen | number:'1.2-2' }}</span>
+                    <span class="text-lg font-bold font-mono text-white"><span>$</span>{{ selectedClient.margen | number:'1.2-6' }}</span>
                   </div>
                 </div>
 
                 <div class="flex gap-2">
                   <div class="flex-1 bg-green-500/10 text-green-400 border border-green-500/30 p-3 rounded flex justify-between items-center">
                     <span class="text-[10px] font-bold uppercase tracking-widest">Depósitos (Aprobados)</span>
-                    <span class="font-mono font-bold">+${{ totalDepositosAprobados | number:'1.2-2' }}</span>
+                    <span class="font-mono font-bold">+${{ totalDepositosAprobados | number:'1.2-6' }}</span>
                   </div>
                   <div class="flex-1 bg-red-500/10 text-red-400 border border-red-500/30 p-3 rounded flex justify-between items-center">
                     <span class="text-[10px] font-bold uppercase tracking-widest">Retiros (Aprobados)</span>
-                    <span class="font-mono font-bold">-${{ totalRetirosAprobados | number:'1.2-2' }}</span>
+                    <span class="font-mono font-bold">-${{ totalRetirosAprobados | number:'1.2-6' }}</span>
                   </div>
                 </div>
               </div>
@@ -882,14 +879,7 @@
                   </div>
                 </div>
                 
-                <div *ngIf="cajaError" class="mt-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-xs font-bold flex items-center gap-2">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                  {{ cajaError }}
-                </div>
-                <div *ngIf="cajaExito" class="mt-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 text-xs font-bold flex items-center gap-2">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                  {{ cajaExito }}
-                </div>
+
 
                 <div class="mt-6 flex justify-end">
                   <button (click)="procesarCaja()" class="bg-newera-primary text-black font-bold uppercase tracking-widest text-xs px-8 py-3 rounded-lg hover:bg-white transition-all shadow-[0_0_15px_rgba(37,99,235,0.4)]">
@@ -922,7 +912,7 @@
                     </div>
                     <div class="text-right">
                       <div class="font-mono font-bold text-sm" [ngClass]="tx.tipo === 'DEPOSITO' ? 'text-green-400' : 'text-red-400'">
-                        {{ tx.tipo === 'DEPOSITO' ? '+$' : '-$' }}{{ tx.monto | number:'1.2-2' }}
+                        {{ tx.tipo === 'DEPOSITO' ? '+$' : '-$' }}{{ tx.monto | number:'1.2-6' }}
                       </div>
                       <div class="mt-1 inline-block px-2 py-0.5 rounded text-[8px] font-bold uppercase tracking-widest"
                            [ngClass]="{
@@ -997,10 +987,24 @@
     </div>
 
     <!-- Toast Notification -->
-    <div *ngIf="toastMessage" class="fixed bottom-4 right-4 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
-      <div class="glass-panel bg-newera-profit/10 border border-newera-profit/30 px-4 py-3 flex items-center gap-3 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-        <svg class="w-5 h-5 text-newera-profit" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div *ngIf="toastMessage" class="fixed bottom-4 left-4 right-4 md:left-auto md:w-auto z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
+      <div class="glass-panel border px-4 py-3 flex items-center gap-3 shadow-lg"
+           [ngClass]="{
+             'bg-newera-profit/10 border-newera-profit/30 shadow-[0_0_20px_rgba(16,185,129,0.2)]': toastType === 'success',
+             'bg-orange-500/10 border-orange-500/30 shadow-[0_0_20px_rgba(249,115,22,0.2)]': toastType === 'warning',
+             'bg-red-500/10 border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.2)]': toastType === 'error'
+           }">
+        <!-- Success Icon -->
+        <svg *ngIf="toastType === 'success'" class="w-5 h-5 text-newera-profit" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <!-- Warning Icon -->
+        <svg *ngIf="toastType === 'warning'" class="w-5 h-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <!-- Error Icon -->
+        <svg *ngIf="toastType === 'error'" class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <span class="text-sm font-semibold text-white">{{ toastMessage }}</span>
       </div>
@@ -1018,36 +1022,44 @@
           </button>
         </div>
 
-        <div *ngIf="newClientErrorMessage" class="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded mb-2 text-sm flex items-start gap-2">
-          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-          {{ newClientErrorMessage }}
-        </div>
 
         <form class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Credenciales -->
           <div class="space-y-1">
             <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">Correo Electrónico <span class="text-red-500">*</span></label>
-            <input type="email" [(ngModel)]="newClient.correo" name="correo" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors" placeholder="cliente@ejemplo.com">
+            <input type="email" [(ngModel)]="newClient.correo" name="correo" (blur)="onCorreoBlur()"
+                   [ngClass]="{
+                     'bg-red-500/5 border-red-500 focus:border-red-500 text-red-100': newClientErrors['correo'] || correoStatus === 'invalid',
+                     'bg-green-500/5 border-green-500 focus:border-green-500 text-green-100': correoStatus === 'valid',
+                     'bg-white/5 border-white/10 focus:border-newera-primary text-white': !newClientErrors['correo'] && correoStatus !== 'invalid' && correoStatus !== 'valid'
+                   }"
+                   class="w-full border rounded px-3 py-2 text-sm focus:outline-none transition-colors">
           </div>
           <div class="space-y-1">
             <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">Contraseña Inicial <span class="text-red-500">*</span></label>
-            <input type="text" [(ngModel)]="newClient.pass" name="pass" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors" placeholder="••••••••">
+            <input type="text" [(ngModel)]="newClient.pass" name="pass" [ngClass]="newClientErrors['pass'] ? 'bg-red-500/5 border-red-500 focus:border-red-500 text-red-100' : 'bg-white/5 border-white/10 focus:border-newera-primary text-white'" class="w-full border rounded px-3 py-2 text-sm focus:outline-none transition-colors">
           </div>
 
           <!-- Perfil -->
           <div class="space-y-1">
             <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">Nombre Completo <span class="text-red-500">*</span></label>
-            <input type="text" [(ngModel)]="newClient.nombreCompleto" name="nombreCompleto" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors" placeholder="Juan Pérez">
+            <input type="text" [(ngModel)]="newClient.nombreCompleto" name="nombreCompleto" [ngClass]="newClientErrors['nombreCompleto'] ? 'bg-red-500/5 border-red-500 focus:border-red-500 text-red-100' : 'bg-white/5 border-white/10 focus:border-newera-primary text-white'" class="w-full border rounded px-3 py-2 text-sm focus:outline-none transition-colors">
           </div>
           <div class="space-y-1">
             <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">Nombre de Pila (Nick)</label>
-            <input type="text" [(ngModel)]="newClient.nombrePila" name="nombrePila" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors" placeholder="Juan">
+            <input type="text" [(ngModel)]="newClient.nombrePila" name="nombrePila" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors">
           </div>
 
           <!-- Operatividad -->
           <div class="space-y-1">
             <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">Teléfono <span class="text-red-500">*</span></label>
-            <input type="text" [(ngModel)]="newClient.telefono" name="telefono" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors" placeholder="5551234567">
+            <input type="text" [(ngModel)]="newClient.telefono" name="telefono" (blur)="onTelefonoBlur()"
+                   [ngClass]="{
+                     'bg-red-500/5 border-red-500 focus:border-red-500 text-red-100': newClientErrors['telefono'] || telefonoStatus === 'invalid',
+                     'bg-green-500/5 border-green-500 focus:border-green-500 text-green-100': telefonoStatus === 'valid',
+                     'bg-white/5 border-white/10 focus:border-newera-primary text-white': !newClientErrors['telefono'] && telefonoStatus !== 'invalid' && telefonoStatus !== 'valid'
+                   }"
+                   class="w-full border rounded px-3 py-2 text-sm focus:outline-none transition-colors">
           </div>
           <div class="space-y-1">
             <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">Estado de Residencia</label>
@@ -1059,18 +1071,19 @@
 
           <!-- Datos Demográficos -->
           <div class="space-y-1">
-            <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">Fecha Nacimiento</label>
-            <input type="date" [(ngModel)]="newClient.fechaNacimiento" name="fechaNacimiento" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors [color-scheme:dark]">
+            <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">Fecha Nacimiento <span class="text-red-500">*</span></label>
+            <input type="date" [(ngModel)]="newClient.fechaNacimiento" name="fechaNacimiento" [ngClass]="newClientErrors['fechaNacimiento'] ? 'bg-red-500/5 border-red-500 focus:border-red-500 text-red-100' : 'bg-white/5 border-white/10 focus:border-newera-primary text-white'" class="w-full border rounded px-3 py-2 text-sm focus:outline-none transition-colors [color-scheme:dark]">
+            <p class="text-[9px] text-white/30 italic mt-0.5">* Esta fecha será cotejada con la credencial de elector.</p>
           </div>
           <div class="space-y-1">
             <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">Profesión</label>
-            <input type="text" [(ngModel)]="newClient.profesion" name="profesion" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors" placeholder="Ingeniero, Abogado, etc...">
+            <input type="text" [(ngModel)]="newClient.profesion" name="profesion" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors">
           </div>
 
           <!-- Trading Info -->
           <div class="space-y-1">
             <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">Experiencia Trading <span class="text-red-500">*</span></label>
-            <select [(ngModel)]="newClient.experienciaTrading" name="experienciaTrading" class="w-full bg-[#111] border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors">
+            <select [(ngModel)]="newClient.experienciaTrading" name="experienciaTrading" [ngClass]="newClientErrors['experienciaTrading'] ? 'bg-red-500/5 border-red-500 focus:border-red-500 text-red-100' : 'bg-[#111] border-white/10 focus:border-newera-primary text-white'" class="w-full border rounded px-3 py-2 text-sm focus:outline-none transition-colors">
               <option class="bg-[#111] text-white" value="">Seleccionar...</option>
               <option class="bg-[#111] text-white" value="PRINCIPIANTE">Principiante (Menos de 1 año)</option>
               <option class="bg-[#111] text-white" value="INTERMEDIO">Intermedio (1 a 3 años)</option>
@@ -1079,7 +1092,7 @@
           </div>
           <div class="space-y-1">
             <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">Hobbie / Interés</label>
-            <input type="text" [(ngModel)]="newClient.hobbie" name="hobbie" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors" placeholder="Ej. Deportes, Viajes...">
+            <input type="text" [(ngModel)]="newClient.hobbie" name="hobbie" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors">
           </div>
         </form>
 

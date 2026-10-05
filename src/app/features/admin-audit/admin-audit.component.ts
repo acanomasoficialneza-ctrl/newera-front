@@ -55,8 +55,14 @@ export class AdminAuditComponent implements OnInit {
     const url = URL.createObjectURL(blob);
     
     const link = document.createElement('a');
+    const now = new Date();
+    let hours = now.getHours();
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12; 
+    const strTime = `${hours.toString().padStart(2, '0')}_${now.getMinutes().toString().padStart(2, '0')}_${ampm}`;
     link.setAttribute('href', url);
-    link.setAttribute('download', `auditoria_${this.selectedDate}.txt`);
+    link.setAttribute('download', `auditoria_${this.selectedDate}_${strTime}.txt`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();

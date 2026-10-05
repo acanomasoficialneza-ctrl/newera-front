@@ -84,8 +84,12 @@
                     <span class="text-white text-xs">{{ req.method }}</span>
                   </div>
                 </td>
-                <td class="px-6 py-4 hidden lg:table-cell max-w-[200px]">
-                  <span class="text-newera-text-muted text-[10px] font-mono truncate block" [title]="req.accountDetails">{{ req.accountDetails }}</span>
+                <td class="px-6 py-4 hidden lg:table-cell max-w-[200px] relative group/tooltip">
+                  <span class="text-newera-text-muted text-[10px] font-mono truncate block cursor-help">{{ req.accountDetails }}</span>
+                  <div *ngIf="req.accountDetails && req.accountDetails !== 'N/A'" class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block z-50 w-64 p-3 bg-[#1a1d24] border border-white/10 rounded shadow-2xl text-white/90 text-xs whitespace-normal break-words font-mono leading-relaxed pointer-events-none">
+                    {{ req.accountDetails }}
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#1a1d24]"></div>
+                  </div>
                 </td>
                 <td class="px-6 py-4 text-right">
                   <div class="flex flex-col items-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
@@ -140,8 +144,12 @@
                     <span class="text-white text-xs">{{ req.method }}</span>
                   </div>
                 </td>
-                <td class="px-6 py-4 hidden lg:table-cell max-w-[200px]">
-                  <span class="text-newera-text-muted text-[10px] font-mono truncate block" [title]="req.accountDetails">{{ req.accountDetails }}</span>
+                <td class="px-6 py-4 hidden lg:table-cell max-w-[200px] relative group/tooltip">
+                  <span class="text-newera-text-muted text-[10px] font-mono truncate block cursor-help">{{ req.accountDetails }}</span>
+                  <div *ngIf="req.accountDetails && req.accountDetails !== 'N/A'" class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover/tooltip:block z-50 w-64 p-3 bg-[#1a1d24] border border-white/10 rounded shadow-2xl text-white/90 text-xs whitespace-normal break-words font-mono leading-relaxed pointer-events-none">
+                    {{ req.accountDetails }}
+                    <div class="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-[#1a1d24]"></div>
+                  </div>
                 </td>
                 <td class="px-6 py-4 text-right">
                    <span class="px-2 py-1.5 rounded text-[10px] font-bold border tracking-wider uppercase inline-block w-[90px] text-center"
@@ -185,9 +193,18 @@
                   </span>
                 </div>
                 <div class="bg-black/20 rounded p-2 border border-white/5">
-                  <span class="text-[9px] text-newera-text-muted uppercase tracking-wider block mb-0.5">Método / Nota</span>
+                  <span class="text-[9px] text-newera-text-muted uppercase tracking-wider block mb-0.5">Método</span>
                   <span class="text-white text-xs block font-bold">{{ req.method }}</span>
-                  <span class="text-white/70 text-[10px] font-mono block mt-0.5 truncate" [title]="req.accountDetails">{{ req.accountDetails }}</span>
+                </div>
+                <div class="bg-black/20 rounded p-2 border border-white/5 mt-2">
+                  <span class="text-[9px] text-newera-text-muted uppercase tracking-wider block mb-0.5">Nota</span>
+                  <div class="relative group/tooltip">
+                    <span class="text-white/70 text-[10px] font-mono block mt-0.5 truncate cursor-help">{{ req.accountDetails }}</span>
+                    <div *ngIf="req.accountDetails && req.accountDetails !== 'N/A'" class="absolute bottom-full left-0 mb-2 hidden group-hover/tooltip:block z-50 w-48 p-3 bg-[#1a1d24] border border-white/10 rounded shadow-2xl text-white/90 text-xs whitespace-normal break-words font-mono leading-relaxed pointer-events-none">
+                      {{ req.accountDetails }}
+                      <div class="absolute top-full left-4 border-4 border-transparent border-t-[#1a1d24]"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -235,9 +252,18 @@
                   </span>
                 </div>
                 <div class="bg-black/20 rounded p-2 border border-white/5">
-                  <span class="text-[9px] text-newera-text-muted uppercase tracking-wider block mb-0.5">Método / Nota</span>
+                  <span class="text-[9px] text-newera-text-muted uppercase tracking-wider block mb-0.5">Método</span>
                   <span class="text-white text-xs block font-bold">{{ req.method }}</span>
-                  <span class="text-white/70 text-[10px] font-mono block mt-0.5 truncate" [title]="req.accountDetails">{{ req.accountDetails }}</span>
+                </div>
+                <div class="bg-black/20 rounded p-2 border border-white/5 mt-2">
+                  <span class="text-[9px] text-newera-text-muted uppercase tracking-wider block mb-0.5">Nota</span>
+                  <div class="relative group/tooltip">
+                    <span class="text-white/70 text-[10px] font-mono block mt-0.5 truncate cursor-help">{{ req.accountDetails }}</span>
+                    <div *ngIf="req.accountDetails && req.accountDetails !== 'N/A'" class="absolute bottom-full left-0 mb-2 hidden group-hover/tooltip:block z-50 w-48 p-3 bg-[#1a1d24] border border-white/10 rounded shadow-2xl text-white/90 text-xs whitespace-normal break-words font-mono leading-relaxed pointer-events-none">
+                      {{ req.accountDetails }}
+                      <div class="absolute top-full left-4 border-4 border-transparent border-t-[#1a1d24]"></div>
+                    </div>
+                  </div>
                 </div>
                 <div class="flex justify-end mt-1">
                   <span class="px-2 py-1 rounded text-[9px] font-bold border tracking-wider uppercase inline-block"
@@ -259,9 +285,13 @@
         <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="cancelConfirm()"></div>
         <div class="relative bg-[#0f1219] border border-newera-primary/30 rounded-xl p-6 w-[90%] max-w-sm shadow-[0_0_30px_rgba(37,99,235,0.15)] animate-in zoom-in-95 duration-200">
           <h3 class="text-lg font-bold text-white mb-2">{{ confirmAction === 'APROBAR' ? 'Aprobar' : 'Rechazar' }} Petición</h3>
-          <p class="text-sm text-white/70 mb-6">
+          <p class="text-sm text-white/70 mb-4">
             ¿Confirmas la decisión?
           </p>
+          <div class="mb-6">
+            <label class="text-[10px] text-newera-text-muted uppercase tracking-wider block mb-2">Nota / Justificación (Opcional)</label>
+            <textarea [(ngModel)]="confirmNote" rows="2" placeholder="Escribe el motivo..." class="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-newera-primary custom-scrollbar"></textarea>
+          </div>
           <div class="flex justify-end gap-3">
             <button (click)="cancelConfirm()" class="px-4 py-2 rounded text-xs font-bold text-white/70 hover:text-white hover:bg-white/5 transition-colors">
               CANCELAR
@@ -275,7 +305,7 @@
       </div>
 
       <!-- Toast Notification -->
-      <div *ngIf="toastMessage" class="fixed bottom-4 right-4 z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
+      <div *ngIf="toastMessage" class="fixed bottom-4 left-4 right-4 md:left-auto md:w-auto z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
         <div class="glass-panel bg-newera-profit/10 border border-newera-profit/30 px-4 py-3 flex items-center gap-3 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
           <svg class="w-5 h-5 text-newera-profit" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

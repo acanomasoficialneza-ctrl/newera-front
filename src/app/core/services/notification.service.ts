@@ -8,6 +8,7 @@ export interface AlertaCampanita {
   idUsuarioDestino: number;
   titulo: string;
   mensaje: string;
+  tipo?: string;
   leido: boolean;
   fechaCreacion: string;
 }
@@ -21,7 +22,28 @@ export class NotificationService {
   constructor(private http: HttpClient) {}
 
   getNotificaciones(idUsuario: number): Observable<AlertaCampanita[]> {
-    return this.http.get<AlertaCampanita[]>(`${this.apiUrl}/campanita/${idUsuario}`);
+    return new Observable(observer => {
+      const token = sessionStorage.getItem('jwt_token') || '';
+      const eventSource = new EventSource(`${this.apiUrl}/stream/${idUsuario}?token=${token}`);
+
+      eventSource.addEventListener('notifications-update', (event: any) => {
+        try {
+          const data = JSON.parse(event.data);
+          observer.next(data);
+        } catch (e) {
+          console.error('Error parsing notifications update', e);
+        }
+      });
+
+      eventSource.onerror = (error) => {
+        console.error('Error in notifications SSE', error);
+        // We don't complete or error out immediately, to allow automatic reconnection by the browser.
+      };
+
+      return () => {
+        eventSource.close();
+      };
+    });
   }
 
   marcarComoLeida(idAlerta: number): Observable<any> {

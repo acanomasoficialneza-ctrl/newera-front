@@ -55,14 +55,14 @@ import { Subscription } from 'rxjs';
               
               <!-- INVERSION -->
               <td class="px-4 py-4 font-mono text-xs text-right text-white/80">
-                <span>$</span>{{ pos.montoApuesta | number:'1.2-2' }}
+                <span>$</span>{{ pos.montoApuesta | number:'1.2-6' }}
               </td>
 
               <!-- P&L FINAL -->
               <td class="px-4 py-4 font-mono text-xs font-bold text-right"
                   [class.text-newera-profit]="pos.gananciaPerdida >= 0"
                   [class.text-newera-loss]="pos.gananciaPerdida < 0">
-                  {{ pos.gananciaPerdida >= 0 ? '+$' : '-$' }}{{ (pos.gananciaPerdida >= 0 ? pos.gananciaPerdida : (pos.gananciaPerdida * -1)) | number:'1.2-2' }}
+                  {{ pos.gananciaPerdida >= 0 ? '+$' : '-$' }}{{ (pos.gananciaPerdida >= 0 ? pos.gananciaPerdida : (pos.gananciaPerdida * -1)) | number:'1.2-6' }}
               </td>
               
               <!-- ESTADO / ACCIÓN -->
@@ -98,12 +98,12 @@ import { Subscription } from 'rxjs';
             <div class="flex justify-between items-end border-t border-white/5 pt-3 mt-1">
               <div>
                 <span class="text-[9px] text-white/40 uppercase tracking-widest block mb-1">Inversión</span>
-                <span class="font-mono text-white text-xs"><span>$</span>{{ pos.montoApuesta | number:'1.2-2' }}</span>
+                <span class="font-mono text-white text-xs"><span>$</span>{{ pos.montoApuesta | number:'1.2-6' }}</span>
               </div>
               <div class="text-right">
                 <span class="text-[9px] text-white/40 uppercase tracking-widest block mb-1">P&L Actual</span>
                 <span class="font-mono font-bold text-sm" [ngClass]="pos.gananciaPerdida >= 0 ? 'text-newera-profit' : 'text-newera-loss'">
-                  {{ pos.gananciaPerdida >= 0 ? '+$' : '-$' }}{{ (pos.gananciaPerdida >= 0 ? pos.gananciaPerdida : (pos.gananciaPerdida * -1)) | number:'1.2-2' }}
+                  {{ pos.gananciaPerdida >= 0 ? '+$' : '-$' }}{{ (pos.gananciaPerdida >= 0 ? pos.gananciaPerdida : (pos.gananciaPerdida * -1)) | number:'1.2-6' }}
                 </span>
               </div>
             </div>
@@ -142,11 +142,13 @@ import { Subscription } from 'rxjs';
       <!-- FIN MODAL -->
 
       <!-- TOAST NOTIFICACIÓN -->
-      <div *ngIf="toastMessage" class="fixed top-20 right-4 bg-black/80 backdrop-blur-md border border-white/10 text-white px-4 py-3 rounded-xl z-50 animate-in slide-in-from-top-2 flex items-center gap-2 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
-        <svg class="w-5 h-5 text-newera-profit" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <span class="text-sm font-bold tracking-wide">{{ toastMessage }}</span>
+      <div *ngIf="toastMessage" class="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-auto z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
+        <div class="glass-panel bg-newera-profit/10 border-newera-profit/30 shadow-[0_0_20px_rgba(16,185,129,0.2)] px-4 py-3 flex items-center gap-3 rounded-xl border backdrop-blur-md">
+          <svg class="w-5 h-5 text-newera-profit shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="text-sm font-bold text-white">{{ toastMessage }}</span>
+        </div>
       </div>
 
     </div>

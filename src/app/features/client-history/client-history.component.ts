@@ -72,7 +72,7 @@ export interface CajaTransaction {
                 </td>
                 <td class="px-6 py-4 font-mono font-bold text-right"
                     [ngClass]="tx.type === 'DEPOSITO' ? 'text-newera-profit' : 'text-white'">
-                  {{ tx.type === 'DEPOSITO' ? '+' : '-' }}<span>$</span>{{ tx.amount | number:'1.2-2' }}
+                  {{ tx.type === 'DEPOSITO' ? '+' : '-' }}<span>$</span>{{ tx.amount | number:'1.2-6' }}
                 </td>
                 <td class="px-6 py-4 text-center">
                   <span class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider border"
@@ -114,19 +114,36 @@ export interface CajaTransaction {
               </div>
               
               <!-- Bottom Row -->
-              <div class="flex justify-between items-end border-t border-white/5 pt-3">
-                <div class="flex flex-col">
-                  <span class="text-[9px] text-newera-text-muted uppercase tracking-wider mb-0.5">Método / Nota</span>
-                  <span class="text-white text-xs">{{ tx.method }}</span>
-                  <span *ngIf="tx.note" class="text-white/50 text-[10px] mt-1">{{ tx.note }}</span>
-                  <span class="text-white/30 font-mono text-[9px] mt-0.5">{{ tx.id }}</span>
+              <div class="flex flex-col gap-3 border-t border-white/5 pt-3">
+                <div class="flex justify-between items-end">
+                  <div class="flex flex-col">
+                    <span class="text-[9px] text-newera-text-muted uppercase tracking-wider mb-0.5">Método</span>
+                    <span class="text-white text-xs font-bold">{{ tx.method }}</span>
+                    <span class="text-white/30 font-mono text-[9px] mt-0.5">{{ tx.id }}</span>
+                  </div>
+                  <div class="flex flex-col items-end">
+                    <span class="text-[9px] text-newera-text-muted uppercase tracking-wider mb-0.5">Monto</span>
+                    <span class="font-mono font-bold text-lg"
+                          [ngClass]="tx.type === 'DEPOSITO' ? 'text-newera-profit' : 'text-white'">
+                      {{ tx.type === 'DEPOSITO' ? '+' : '-' }}<span>$</span>{{ tx.amount | number:'1.2-6' }}
+                    </span>
+                  </div>
                 </div>
-                <div class="flex flex-col items-end">
-                  <span class="text-[9px] text-newera-text-muted uppercase tracking-wider mb-0.5">Monto</span>
-                  <span class="font-mono font-bold text-lg"
-                        [ngClass]="tx.type === 'DEPOSITO' ? 'text-newera-profit' : 'text-white'">
-                    {{ tx.type === 'DEPOSITO' ? '+' : '-' }}<span>$</span>{{ tx.amount | number:'1.2-2' }}
+                
+                <!-- Expanded Note Section -->
+                <div class="flex flex-col bg-white/5 rounded-lg p-3 relative group/tooltip" *ngIf="tx.note">
+                  <span class="text-[9px] text-newera-text-muted uppercase tracking-wider mb-1 flex items-center gap-1">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Nota
                   </span>
+                  <span class="text-white/80 text-[11px] leading-relaxed line-clamp-2 cursor-pointer">{{ tx.note }}</span>
+                  
+                  <!-- Tooltip Custom para vista móvil -->
+                  <div class="absolute z-50 left-0 bottom-full mb-2 w-[calc(100vw-4rem)] p-3 bg-[#1a1a1a] border border-white/10 rounded-xl shadow-xl opacity-0 group-hover/tooltip:opacity-100 pointer-events-none transition-opacity duration-200">
+                    <span class="text-white text-xs block break-words">{{ tx.note }}</span>
+                  </div>
                 </div>
               </div>
             </div>

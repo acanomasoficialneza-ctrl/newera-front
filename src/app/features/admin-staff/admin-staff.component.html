@@ -157,28 +157,46 @@
 
         <form class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <!-- Credenciales -->
-          <div class="space-y-1">
-            <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">Correo Electrónico</label>
-            <input type="email" [(ngModel)]="selectedAdmin.correo" name="correo" [disabled]="isEditMode" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors disabled:opacity-50" placeholder="ejecutivo@newera.com">
+          <div class="space-y-1 relative">
+            <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">Correo Electrónico <span class="text-newera-loss ml-1">*</span></label>
+            <input type="email" [(ngModel)]="selectedAdmin.correo" (ngModelChange)="onEmailChange($event)" name="correo" [disabled]="isEditMode" class="w-full bg-white/5 border rounded px-3 py-2 text-sm text-white focus:outline-none transition-colors disabled:opacity-50 pr-8"
+                   [ngClass]="{
+                     'border-newera-loss focus:border-newera-loss': emailError,
+                     'border-newera-profit focus:border-newera-profit': emailValid,
+                     'border-white/10 focus:border-newera-primary': !emailError && !emailValid
+                   }">
+            <span *ngIf="emailValid" class="absolute right-3 top-[28px] text-newera-profit">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            </span>
+            <span *ngIf="emailError" class="block text-[10px] text-newera-loss mt-1">{{ emailError }}</span>
           </div>
           <div class="space-y-1">
-            <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">{{ isEditMode ? 'Contraseña Actual / Nueva' : 'Contraseña' }}</label>
-            <input type="text" [(ngModel)]="selectedAdmin.pass" name="pass" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors" placeholder="••••••••">
+            <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">{{ isEditMode ? 'Contraseña Actual / Nueva' : 'Contraseña' }} <span class="text-newera-loss ml-1">*</span></label>
+            <input type="text" [(ngModel)]="selectedAdmin.pass" name="pass" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors">
           </div>
 
           <!-- Perfil -->
           <div class="space-y-1">
-            <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">Nombre Completo</label>
-            <input type="text" [(ngModel)]="selectedAdmin.nombre" name="nombre" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors" placeholder="Juan Pérez">
+            <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">Nombre Completo <span class="text-newera-loss ml-1">*</span></label>
+            <input type="text" [(ngModel)]="selectedAdmin.nombre" name="nombre" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors">
           </div>
-          <div class="space-y-1">
-            <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">Teléfono</label>
-            <input type="text" [(ngModel)]="selectedAdmin.telefono" name="telefono" class="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors" placeholder="+52 555 000 0000">
+          <div class="space-y-1 relative">
+            <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">Teléfono <span class="text-newera-loss ml-1">*</span></label>
+            <input type="text" [(ngModel)]="selectedAdmin.telefono" (ngModelChange)="onPhoneChange($event)" name="telefono" class="w-full bg-white/5 border rounded px-3 py-2 text-sm text-white focus:outline-none transition-colors pr-8"
+                   [ngClass]="{
+                     'border-newera-loss focus:border-newera-loss': phoneError,
+                     'border-newera-profit focus:border-newera-profit': phoneValid,
+                     'border-white/10 focus:border-newera-primary': !phoneError && !phoneValid
+                   }">
+            <span *ngIf="phoneValid" class="absolute right-3 top-[28px] text-newera-profit">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            </span>
+            <span *ngIf="phoneError" class="block text-[10px] text-newera-loss mt-1">{{ phoneError }}</span>
           </div>
 
           <!-- Operatividad -->
           <div class="space-y-1">
-            <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">Departamento</label>
+            <label class="text-[10px] uppercase tracking-widest text-white/50 font-semibold">Departamento <span class="text-newera-loss ml-1">*</span></label>
             <select [(ngModel)]="selectedAdmin.departamento" name="departamento" class="w-full bg-[#111] border border-white/10 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors">
               <option class="bg-[#111] text-white" value="DIRECCION">DIRECCION</option>
               <option class="bg-[#111] text-white" value="VENTAS">VENTAS</option>
@@ -186,7 +204,7 @@
             </select>
           </div>
           <div class="space-y-1">
-            <label class="text-[10px] uppercase tracking-widest text-newera-primary font-bold">Jerarquía / Rol</label>
+            <label class="text-[10px] uppercase tracking-widest text-newera-primary font-bold">Jerarquía / Rol <span class="text-newera-loss ml-1">*</span></label>
             <select [(ngModel)]="selectedAdmin.rol" name="rol" class="w-full bg-newera-primary/10 border border-newera-primary/50 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-newera-primary transition-colors">
               <option class="bg-[#111] text-white" value="CLIENTE">CLIENTE</option>
               <option class="bg-[#111] text-white" value="EJECUTIVO">EJECUTIVO</option>
@@ -205,10 +223,7 @@
           </div>
         </form>
 
-        <div *ngIf="errorMessage" class="p-3 mt-4 text-sm font-semibold text-newera-loss bg-newera-loss/10 border border-newera-loss/30 rounded-lg flex items-center gap-2">
-          <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-          {{ errorMessage }}
-        </div>
+
 
         <div class="flex justify-end gap-3 pt-4 mt-4 border-t border-white/10 shrink-0">
           <button (click)="closeModal()" class="px-4 py-2 rounded border border-white/20 text-white/70 text-sm font-bold hover:bg-white/5 transition-colors uppercase tracking-widest">
@@ -250,10 +265,28 @@
 
     <!-- Toast Notification -->
     <div *ngIf="toastMessage" class="fixed bottom-4 right-4 z-[60] animate-in slide-in-from-bottom-5 fade-in duration-300">
-      <div class="glass-panel bg-newera-profit/10 border border-newera-profit/30 px-4 py-3 flex items-center gap-3 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-        <svg class="w-5 h-5 text-newera-profit" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div class="glass-panel px-4 py-3 flex items-center gap-3 shadow-lg"
+           [ngClass]="{
+             'bg-newera-profit/10 border-newera-profit/30 shadow-[0_0_20px_rgba(16,185,129,0.2)]': toastType === 'success',
+             'bg-red-500/10 border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.2)]': toastType === 'error',
+             'bg-yellow-500/10 border-yellow-500/30 shadow-[0_0_20px_rgba(234,179,8,0.2)]': toastType === 'warning'
+           }">
+        
+        <!-- Success Icon -->
+        <svg *ngIf="toastType === 'success'" class="w-5 h-5 text-newera-profit" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
+        
+        <!-- Error Icon -->
+        <svg *ngIf="toastType === 'error'" class="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        
+        <!-- Warning Icon -->
+        <svg *ngIf="toastType === 'warning'" class="w-5 h-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+
         <span class="text-sm font-semibold text-white">{{ toastMessage }}</span>
       </div>
     </div>

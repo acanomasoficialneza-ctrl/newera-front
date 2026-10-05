@@ -52,11 +52,11 @@ interface TickData {
                   <span class="text-[10px] ml-1">{{ tick.isUp ? '▲' : '▼' }}</span>
               </td>
               <td class="px-4 py-3 font-mono text-xs text-right text-newera-loss font-bold">
-                {{ tick.bid | number:'1.2-5' }}
+                {{ tick.bid | number:'1.2-6' }}
               </td>
               
               <td class="px-4 py-3 font-mono text-xs text-right text-newera-profit font-bold">
-                {{ tick.ask | number:'1.2-5' }}
+                {{ tick.ask | number:'1.2-6' }}
               </td>
               
             </tr>

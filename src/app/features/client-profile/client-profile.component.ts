@@ -104,28 +104,23 @@ export class ClientProfileComponent implements OnInit {
   }
 
   loadSecureImages() {
-    this.urlFotoPerfilBlob = null;
-    this.urlIneFrenteBlob = null;
-    this.urlIneReversoBlob = null;
+    const defaultAvatar = 'E:\\casino\\newEra\\fotoGenerica.png';
+    const defaultIne = 'E:\\casino\\newEra\\credencial.png';
 
-    const defaultAvatar = 'E:\\\\casino\\\\newEra\\\\fotoGenerica.png';
-    const defaultIne = 'E:\\\\casino\\\\newEra\\\\credencial.png';
-
-    this.fetchBlob(this.selectedClient.urlFotoPerfil || defaultAvatar, 'urlFotoPerfilBlob');
-    this.fetchBlob(this.selectedClient.urlIneFrente || defaultIne, 'urlIneFrenteBlob');
-    this.fetchBlob(this.selectedClient.urlIneReverso || defaultIne, 'urlIneReversoBlob');
+    this.urlFotoPerfilBlob = this.buildMediaUrl(this.selectedClient.urlFotoPerfil || defaultAvatar);
+    this.urlIneFrenteBlob = this.buildMediaUrl(this.selectedClient.urlIneFrente || defaultIne);
+    this.urlIneReversoBlob = this.buildMediaUrl(this.selectedClient.urlIneReverso || defaultIne);
   }
 
-  fetchBlob(path: string, prop: 'urlFotoPerfilBlob' | 'urlIneFrenteBlob' | 'urlIneReversoBlob') {
-    const url = `${environment.apiUrl}/usuarios/media?path=${encodeURIComponent(path)}`;
-    this.http.get(url, { responseType: 'blob' }).subscribe({
-      next: (blob) => {
-        const objectUrl = URL.createObjectURL(blob);
-        this[prop] = this.sanitizer.bypassSecurityTrustUrl(objectUrl);
-      },
-      error: (err) => console.error('Error fetching image', err)
-    });
+  buildMediaUrl(path: string): string {
+    if (!path) return '';
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+    return `${environment.apiUrl}/file/view/${encodeURIComponent(path.split('\\').pop() || path)}`;
   }
+
+
 
   openFullscreenImage(url: any) {
     if (url) {
@@ -181,6 +176,19 @@ export class ClientProfileComponent implements OnInit {
   }
 
   requestConfirm(type: 'save') {
+    if (type === 'save' && this.selectedClient.fechaNacimiento) {
+      const birthDate = new Date(this.selectedClient.fechaNacimiento);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      if (age < 18) {
+        this.showToast('Debes ser mayor de 18 años para actualizar tu perfil.', 'error');
+        return;
+      }
+    }
     this.confirmActionType = type;
     this.isConfirmOpen = true;
   }
@@ -227,8 +235,11 @@ export class ClientProfileComponent implements OnInit {
     });
   }
 
-  showToast(msg: string) {
+  toastType: 'success' | 'warning' | 'error' = 'success';
+
+  showToast(msg: string, type: 'success' | 'warning' | 'error' = 'success') {
     this.toastMessage = msg;
+    this.toastType = type;
     setTimeout(() => {
       this.toastMessage = null;
     }, 3000);

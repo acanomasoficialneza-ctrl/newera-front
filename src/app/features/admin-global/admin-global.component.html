@@ -217,9 +217,15 @@
             Flujo de Ingresos Netos (Broker P&L)
           </h3>
           <div class="flex flex-wrap gap-1 bg-black/40 border border-white/10 rounded-lg p-1">
-            <button class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-all bg-white/10 text-white shadow">30 Dias</button>
-            <button class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-all text-white/50 hover:text-white">3 Meses</button>
-            <button class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-all text-white/50 hover:text-white">Este Ano</button>
+            <button (click)="setChartRange(30)" 
+                    [ngClass]="selectedRange === 30 ? 'bg-white/10 text-white shadow' : 'text-white/50 hover:text-white'"
+                    class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-all">30 Dias</button>
+            <button (click)="setChartRange(90)" 
+                    [ngClass]="selectedRange === 90 ? 'bg-white/10 text-white shadow' : 'text-white/50 hover:text-white'"
+                    class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-all">3 Meses</button>
+            <button (click)="setChartRange(365)" 
+                    [ngClass]="selectedRange === 365 ? 'bg-white/10 text-white shadow' : 'text-white/50 hover:text-white'"
+                    class="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider transition-all">Este Ano</button>
           </div>
         </div>
         

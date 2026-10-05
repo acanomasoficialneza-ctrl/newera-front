@@ -14,6 +14,16 @@ import { AuthService } from '../../../core/services/auth.service';
     <div class="h-full flex flex-col bg-newera-card relative overflow-hidden rounded-2xl">
       <!-- Gradient superior -->
       <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-newera-primary/50 to-newera-secondary/50"></div>
+
+      <!-- Toast de Éxito -->
+      <div *ngIf="mensajeExito" class="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:w-auto z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
+        <div class="glass-panel bg-newera-profit/10 border-newera-profit/30 shadow-[0_0_20px_rgba(16,185,129,0.2)] px-4 py-3 flex items-center gap-3 rounded-xl border backdrop-blur-md">
+          <svg class="w-5 h-5 text-newera-profit shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="text-sm font-bold text-white">{{ mensajeExito }}</span>
+        </div>
+      </div>
       
       <!-- Header del Panel -->
       <div class="p-5 border-b border-white/5 relative z-10 flex justify-between items-center">
@@ -43,14 +53,14 @@ import { AuthService } from '../../../core/services/auth.service';
                   class="relative overflow-hidden py-3 rounded-xl text-xs tracking-widest font-bold uppercase transition-all duration-300 group flex flex-col items-center justify-center gap-1"
                   [ngClass]="operacion() === 'COMPRAR' ? 'bg-newera-profit text-black shadow-[0_0_15px_rgba(34,197,94,0.3)]' : 'bg-white/5 text-white/50 hover:bg-white/10'">
             <span class="relative z-10 font-bold">COMPRAR (ASK)</span>
-            <span class="relative z-10 text-[10px] font-mono opacity-80" *ngIf="currentAsk() > 0">$ {{ currentAsk() | number:'1.2-5' }}</span>
+            <span class="relative z-10 text-[10px] font-mono opacity-80" *ngIf="currentAsk() > 0">$ {{ currentAsk() | number:'1.2-6' }}</span>
             <div *ngIf="operacion() === 'COMPRAR'" class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-shimmer"></div>
           </button>
           <button (click)="setOperacion('VENTA')"
                   class="relative overflow-hidden py-3 rounded-xl text-xs tracking-widest font-bold uppercase transition-all duration-300 group flex flex-col items-center justify-center gap-1"
                   [ngClass]="operacion() === 'VENTA' ? 'bg-newera-loss text-white shadow-[0_0_15px_rgba(239,68,68,0.3)]' : 'bg-white/5 text-white/50 hover:bg-white/10'">
             <span class="relative z-10 font-bold">VENDER (BID)</span>
-            <span class="relative z-10 text-[10px] font-mono opacity-80" *ngIf="currentBid() > 0">$ {{ currentBid() | number:'1.2-5' }}</span>
+            <span class="relative z-10 text-[10px] font-mono opacity-80" *ngIf="currentBid() > 0">$ {{ currentBid() | number:'1.2-6' }}</span>
             <div *ngIf="operacion() === 'VENTA'" class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-shimmer"></div>
           </button>
         </div>
@@ -62,7 +72,7 @@ import { AuthService } from '../../../core/services/auth.service';
             <div class="relative z-10">
               <p class="text-[10px] uppercase tracking-widest font-bold mb-1 text-white/40">Precio Actual</p>
               <p class="text-xl font-mono font-bold text-white tracking-tight flex items-center gap-1">
-                <span class="text-white/30 text-sm">$</span>{{ currentPrice() | number:'1.2-5' }}
+                <span class="text-white/30 text-sm">$</span>{{ currentPrice() | number:'1.2-6' }}
               </p>
             </div>
           </div>
@@ -71,14 +81,14 @@ import { AuthService } from '../../../core/services/auth.service';
           <div>
             <p class="text-[10px] uppercase tracking-widest font-bold mb-2 text-white/60">Cantidad de Unidades</p>
             <div class="flex gap-2">
-              <button (click)="cambiarUnidades(-1)" class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-white/20 transition-all text-white/70 hover:text-white active:scale-95">
+              <button (click)="cambiarUnidades(-1)" class="w-12 h-12 shrink-0 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-white/20 transition-all text-white/70 hover:text-white active:scale-95 touch-manipulation">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
               </button>
               <div class="flex-1 relative">
-                <input type="number" [(ngModel)]="unidades" (ngModelChange)="recalcular()"
-                       class="w-full h-12 bg-black/40 border border-white/10 rounded-xl px-4 text-center font-mono text-lg font-bold text-white focus:outline-none focus:border-newera-primary/50 transition-colors">
+                <input type="number" inputmode="numeric" pattern="[0-9]*" [(ngModel)]="unidades" (ngModelChange)="recalcular()"
+                       class="w-full h-12 bg-black/40 border border-white/10 rounded-xl px-2 md:px-4 text-center font-mono text-lg font-bold text-white focus:outline-none focus:border-newera-primary/50 transition-colors touch-manipulation [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
               </div>
-              <button (click)="cambiarUnidades(1)" class="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-white/20 transition-all text-white/70 hover:text-white active:scale-95">
+              <button (click)="cambiarUnidades(1)" class="w-12 h-12 shrink-0 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 hover:border-white/20 transition-all text-white/70 hover:text-white active:scale-95 touch-manipulation">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
               </button>
             </div>
@@ -187,6 +197,7 @@ export class OrderPanelComponent {
   
   isProcessing: boolean = false;
   mensajeError: string = '';
+  mensajeExito: string = '';
   
   isConnected = computed(() => this.tradingSocketService.isBalanceConnected());
 
@@ -232,6 +243,7 @@ export class OrderPanelComponent {
     
     this.isProcessing = true;
     this.mensajeError = '';
+    this.mensajeExito = '';
 
     const targetAsset = this.marketDataService.marketPrices().find((p: PriceData) => p.simbolo === this.selectedAsset());
     const categoriaStr = targetAsset ? targetAsset.categoria : 'CRIPTO';
@@ -255,6 +267,10 @@ export class OrderPanelComponent {
         this.confirmado = false;
         this.unidades = 0;
         this.recalcular();
+        
+        this.mensajeExito = `¡Orden de ${this.operacion()} abierta exitosamente!`;
+        setTimeout(() => this.mensajeExito = '', 4000);
+        
         // Notificar que se actualicen las posiciones abiertas en la tabla
         this.apuestaService.posicionesActualizadas.next();
       },

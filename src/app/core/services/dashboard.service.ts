@@ -18,7 +18,7 @@ export interface DashboardGlobalStats {
 }
 
 export interface DashboardChartData {
-  time: string;
+  time: number;
   value: number;
 }
 

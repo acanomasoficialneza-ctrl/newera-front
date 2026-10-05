@@ -46,4 +46,12 @@ export class AdminStaffService {
   updateAdminStatus(id: number, estado: string): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/${id}/estado`, { estado });
   }
+
+  checkCorreo(correo: string): Observable<{ exists: boolean }> {
+    return this.http.get<{ exists: boolean }>(`${this.apiUrl}/check-correo?correo=${encodeURIComponent(correo)}`);
+  }
+
+  checkTelefono(telefono: string): Observable<{ exists: boolean }> {
+    return this.http.get<{ exists: boolean }>(`${this.apiUrl}/check-admin-telefono?telefono=${encodeURIComponent(telefono)}`);
+  }
 }

@@ -32,8 +32,8 @@
             
             <!-- Fecha y IP (Mobile) / Fecha (Desktop) -->
             <div class="flex justify-between md:block shrink-0">
-              <span class="text-white/30">{{ log.fechaEvento | date:'yyyy-MM-dd HH:mm:ss' }}</span>
-              <span class="text-white/30 md:hidden">{{ log.direccionIp }}</span>
+              <span class="text-white/30" [ngClass]="{'text-red-500/70': log.nivel === 'CRITICAL'}">{{ log.fechaEvento | date:'yyyy-MM-dd HH:mm:ss' }}</span>
+              <span class="text-white/30 md:hidden" [ngClass]="{'text-red-500/70': log.nivel === 'CRITICAL'}">{{ log.direccionIp }}</span>
             </div>
 
             <!-- Nivel y Mensaje -->
@@ -43,15 +43,16 @@
                       'text-green-400': log.nivel === 'INFO',
                       'text-yellow-400': log.nivel === 'WARN',
                       'text-red-400': log.nivel === 'ERROR',
+                      'text-red-600 animate-pulse': log.nivel === 'CRITICAL',
                       'text-blue-400': log.nivel === 'AUTH'
                     }">
                 [{{ log.nivel }}]
               </span>
-              <span class="text-white break-words flex-1">{{ log.mensaje }}</span>
+              <span class="break-words flex-1" [ngClass]="log.nivel === 'CRITICAL' ? 'text-red-500 font-bold' : 'text-white'">{{ log.mensaje }}</span>
             </div>
 
             <!-- IP (Desktop) -->
-            <span class="text-white/30 ml-auto shrink-0 pl-4 hidden md:block">{{ log.direccionIp }}</span>
+            <span class="ml-auto shrink-0 pl-4 hidden md:block" [ngClass]="log.nivel === 'CRITICAL' ? 'text-red-500/70' : 'text-white/30'">{{ log.direccionIp }}</span>
             
           </div>
         </div>

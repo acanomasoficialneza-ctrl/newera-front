@@ -56,12 +56,12 @@ import { MarketDataService, PriceData } from '../../../core/services/market-data
                   <!-- Venta (Bid) en Rojo -->
                   <div class="px-2 py-1 flex items-center gap-1 border-r border-white/10 bg-newera-loss/5" title="Venta (Bid)">
                      <span class="text-[8px] text-white/40 uppercase font-bold">V</span>
-                     <span class="font-mono text-[10px] font-bold text-newera-loss">{{ (price.precioVenta || price.precioActual) | number:'1.2-5' }}</span>
+                     <span class="font-mono text-[10px] font-bold text-newera-loss">{{ (price.precioVenta || price.precioActual) | number:'1.2-6' }}</span>
                   </div>
                   <!-- Compra (Ask) en Verde -->
                   <div class="px-2 py-1 flex items-center gap-1 bg-newera-profit/5" title="Compra (Ask)">
                      <span class="text-[8px] text-white/40 uppercase font-bold">C</span>
-                     <span class="font-mono text-[10px] font-bold text-newera-profit">{{ (price.precioCompra || price.precioActual) | number:'1.2-5' }}</span>
+                     <span class="font-mono text-[10px] font-bold text-newera-profit">{{ (price.precioCompra || price.precioActual) | number:'1.2-6' }}</span>
                   </div>
                 </div>
 

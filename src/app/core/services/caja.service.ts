@@ -42,11 +42,13 @@ export class CajaService {
     return this.http.get<TransaccionCaja[]>(`${this.apiUrl}/historial`);
   }
 
-  aprobarTransaccion(idTransaccion: number, idAdmin: number): Observable<TransaccionCaja> {
-    return this.http.put<TransaccionCaja>(`${this.apiUrl}/aprobar/${idTransaccion}?idAdmin=${idAdmin}`, {});
+  aprobarTransaccion(idTransaccion: number, idAdmin: number, nota?: string): Observable<TransaccionCaja> {
+    const queryParams = nota ? `?idAdmin=${idAdmin}&nota=${encodeURIComponent(nota)}` : `?idAdmin=${idAdmin}`;
+    return this.http.put<TransaccionCaja>(`${this.apiUrl}/aprobar/${idTransaccion}${queryParams}`, {});
   }
 
-  rechazarTransaccion(idTransaccion: number, idAdmin: number): Observable<TransaccionCaja> {
-    return this.http.put<TransaccionCaja>(`${this.apiUrl}/rechazar/${idTransaccion}?idAdmin=${idAdmin}`, {});
+  rechazarTransaccion(idTransaccion: number, idAdmin: number, nota?: string): Observable<TransaccionCaja> {
+    const queryParams = nota ? `?idAdmin=${idAdmin}&nota=${encodeURIComponent(nota)}` : `?idAdmin=${idAdmin}`;
+    return this.http.put<TransaccionCaja>(`${this.apiUrl}/rechazar/${idTransaccion}${queryParams}`, {});
   }
 }

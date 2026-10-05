@@ -97,19 +97,22 @@ import { TradingSocketService } from '../services/trading-socket.service';
 
             <!-- Balances del Cliente (Visible en Desktop y Móvil) via SSE -->
             <div *ngIf="currentUser()?.role === 'CLIENTE'" 
-                 class="flex flex-row items-center bg-[#111111]/80 backdrop-blur-md rounded-xl border py-1 px-2 md:px-4 mr-2 shadow-inner transition-colors duration-300"
+                 class="flex flex-row items-center bg-[#111111]/80 backdrop-blur-md rounded-xl border py-1 md:py-1.5 px-1.5 md:px-4 mx-1 md:mr-2 shadow-inner transition-colors duration-300 min-w-0 flex-shrink"
                  [ngClass]="isConnected() ? 'border-white/5' : 'border-red-500/50 opacity-70'">
-              <div class="flex flex-col md:items-end px-1 md:px-3 border-r border-white/10">
-                <span class="text-[9px] md:text-[10px] font-bold text-newera-text-muted uppercase tracking-wider">Balance</span>
-                <span class="text-xs md:text-sm font-bold text-white font-mono">{{ balance()?.dineroTotal || clientStats?.balance | currency:'USD' }}</span>
+                 
+              <div class="flex flex-col items-center md:items-end px-1.5 md:px-3 border-r border-white/10 min-w-0">
+                <span class="text-[7.5px] md:text-[10px] font-bold text-newera-text-muted uppercase tracking-wider whitespace-nowrap">Balance</span>
+                <span class="text-[9.5px] md:text-sm font-bold text-white font-mono truncate w-full text-center md:text-right">{{ balance()?.dineroTotal || clientStats?.balance | currency:'USD':'symbol':'1.2-2' }}</span>
               </div>
-              <div class="flex flex-col md:items-end px-2 md:px-3 border-r border-white/10">
-                <span class="text-[9px] md:text-[10px] font-bold text-newera-text-muted uppercase tracking-wider">M. Libre</span>
-                <span class="text-xs md:text-sm font-bold text-newera-primary font-mono">{{ balance()?.margenLibre || clientStats?.margenLibre | currency:'USD' }}</span>
+              
+              <div class="flex flex-col items-center md:items-end px-1.5 md:px-3 border-r border-white/10 min-w-0">
+                <span class="text-[7.5px] md:text-[10px] font-bold text-newera-text-muted uppercase tracking-wider whitespace-nowrap">M. Libre</span>
+                <span class="text-[9.5px] md:text-sm font-bold text-newera-primary font-mono truncate w-full text-center md:text-right">{{ balance()?.margenLibre || clientStats?.margenLibre | currency:'USD':'symbol':'1.2-2' }}</span>
               </div>
-              <div class="flex flex-col md:items-end pl-2 md:pl-3">
-                <span class="text-[9px] md:text-[10px] font-bold text-newera-text-muted uppercase tracking-wider">Margen</span>
-                <span class="text-xs md:text-sm font-bold text-newera-loss font-mono">{{ balance()?.margen || clientStats?.margenUtilizado | currency:'USD' }}</span>
+              
+              <div class="flex flex-col items-center md:items-end pl-1.5 md:pl-3 min-w-0">
+                <span class="text-[7.5px] md:text-[10px] font-bold text-newera-text-muted uppercase tracking-wider whitespace-nowrap">Margen</span>
+                <span class="text-[9.5px] md:text-sm font-bold text-newera-loss font-mono truncate w-full text-center md:text-right">{{ balance()?.margen || clientStats?.margenUtilizado | currency:'USD':'symbol':'1.2-2' }}</span>
               </div>
             </div>
 
@@ -136,10 +139,26 @@ import { TradingSocketService } from '../services/trading-socket.service';
                      class="p-4 border-b border-white/5 hover:bg-white/5 cursor-pointer transition-colors relative"
                      [ngClass]="{'bg-newera-primary/5': !notif.leido}">
                   <div *ngIf="!notif.leido" class="absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-newera-primary shadow-[0_0_5px_rgba(37,99,235,0.8)]"></div>
-                  <div class="pl-3">
-                    <p class="text-xs font-bold" [ngClass]="notif.leido ? 'text-white/70' : 'text-white'">{{ notif.titulo }}</p>
-                    <p class="text-[10px] text-newera-text-muted mt-1 leading-tight">{{ notif.mensaje }}</p>
-                    <p class="text-[9px] text-white/30 mt-2 font-mono">{{ notif.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</p>
+                  <div class="pl-3 flex items-start gap-2">
+                    <div class="mt-0.5 shrink-0">
+                      <!-- Alerta (Socket) -->
+                      <svg *ngIf="notif.tipo === 'ALERTA'" class="w-4 h-4 text-newera-loss" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      <!-- Warning (Nuevo Cliente) -->
+                      <svg *ngIf="notif.tipo === 'WARNING'" class="w-4 h-4 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                      </svg>
+                      <!-- Normal / INFO -->
+                      <svg *ngIf="!notif.tipo || notif.tipo === 'INFO'" class="w-4 h-4 text-newera-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p class="text-xs font-bold" [ngClass]="notif.leido ? 'text-white/70' : 'text-white'">{{ notif.titulo }}</p>
+                      <p class="text-[10px] text-newera-text-muted mt-1 leading-tight">{{ notif.mensaje }}</p>
+                      <p class="text-[9px] text-white/30 mt-2 font-mono">{{ notif.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -291,13 +310,6 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
           this.tradingSocketService.connectBalance(idUser);
         }
       }
-      
-      this.pollingInterval = setInterval(() => {
-        this.loadNotifications();
-        if (this.currentUser()?.role === 'CLIENTE') {
-          this.loadClientStats();
-        }
-      }, 15000); // Poll every 15 seconds
     }
   }
 
@@ -318,19 +330,20 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    if (this.pollingInterval) {
-      clearInterval(this.pollingInterval);
-      this.pollingInterval = null;
+    if (this.notificationSubscription) {
+      this.notificationSubscription.unsubscribe();
     }
     // Siempre desconectamos el socket al destruir el layout por seguridad, 
     // sin importar el rol actual (que podría ya ser null si se llamó logout antes).
     this.tradingSocketService.disconnectBalance();
   }
 
+  private notificationSubscription: any;
+
   loadNotifications() {
     const user = this.currentUser();
     if (user && user.id) {
-      this.notificationService.getNotificaciones(user.id).subscribe({
+      this.notificationSubscription = this.notificationService.getNotificaciones(user.id).subscribe({
         next: (data) => this.notifications.set(data),
         error: (err) => console.error("Error cargando notificaciones", err)
       });
@@ -382,9 +395,8 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     this.showLogoutModal = false;
     
     // Limpiamos los ciclos manualmente antes de que se destruya para mayor seguridad
-    if (this.pollingInterval) {
-      clearInterval(this.pollingInterval);
-      this.pollingInterval = null;
+    if (this.notificationSubscription) {
+      this.notificationSubscription.unsubscribe();
     }
     this.tradingSocketService.disconnectBalance();
 

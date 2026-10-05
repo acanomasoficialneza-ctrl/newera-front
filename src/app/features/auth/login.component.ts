@@ -12,6 +12,27 @@ import { LoadingService } from '../../core/services/loading.service';
   template: `
     <main class="min-h-screen bg-newera-bg-dark text-newera-text-main flex items-center justify-center p-6 relative overflow-hidden">
       
+      <!-- Toast Notification -->
+      <div *ngIf="toastMessage" class="fixed bottom-4 left-4 right-4 md:left-auto md:w-auto z-[100] animate-in slide-in-from-bottom-5 fade-in duration-300">
+        <div class="glass-panel border px-4 py-3 flex items-center gap-3 shadow-lg"
+             [ngClass]="{
+               'bg-newera-profit/10 border-newera-profit/30 shadow-[0_0_20px_rgba(16,185,129,0.2)]': toastType === 'success',
+               'bg-orange-500/10 border-orange-500/30 shadow-[0_0_20px_rgba(249,115,22,0.2)]': toastType === 'warning',
+               'bg-red-500/10 border-red-500/30 shadow-[0_0_20px_rgba(239,68,68,0.2)]': toastType === 'error'
+             }">
+          <svg *ngIf="toastType === 'success'" class="w-5 h-5 text-newera-profit" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <svg *ngIf="toastType === 'warning'" class="w-5 h-5 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <svg *ngIf="toastType === 'error'" class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span class="text-sm font-semibold text-white">{{ toastMessage }}</span>
+        </div>
+      </div>
+
       <!-- Subtle Background Glow -->
       <div class="absolute top-0 left-0 w-full h-full bg-gradient-premium opacity-40 pointer-events-none z-0"></div>
 
@@ -57,6 +78,16 @@ import { LoadingService } from '../../core/services/loading.service';
           0% { transform: translateX(-10%) scale(1); }
           100% { transform: translateX(10%) scale(1.1); }
         }
+        /* Fix autofill styles for dark mode */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active {
+          -webkit-box-shadow: 0 0 0 30px #0f172a inset !important;
+          -webkit-text-fill-color: white !important;
+          caret-color: white !important;
+          border-radius: 0 !important;
+        }
       </style>
 
       <div class="glass-panel w-full max-w-md p-10 relative z-10 rounded-3xl">
@@ -72,28 +103,36 @@ import { LoadingService } from '../../core/services/loading.service';
         <form (ngSubmit)="onSubmit()" class="space-y-6">
           <div class="relative">
             <input type="email" id="email" [(ngModel)]="email" name="email" required
-                   class="block px-2.5 pb-2.5 pt-5 w-full text-sm text-white bg-transparent border-0 border-b-2 border-white/20 appearance-none focus:outline-none focus:ring-0 focus:border-newera-primary peer" placeholder=" " />
+                   [ngClass]="loginErrors['email'] ? 'text-red-100 border-red-500 focus:border-red-500' : 'text-white border-white/20 focus:border-newera-primary'"
+                   class="block px-2.5 pb-2.5 pt-5 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer" placeholder=" " />
             <label for="email" 
-                   class="absolute text-sm text-newera-text-muted duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-2.5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-newera-primary">
+                   [ngClass]="loginErrors['email'] ? 'text-red-500 peer-focus:text-red-500' : 'text-newera-text-muted peer-focus:text-newera-primary'"
+                   class="absolute text-sm duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-2.5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4">
               Correo Electrónico
             </label>
-            <p class="text-[10px] text-white/30 mt-1">Usa admin&#64;..., cliente&#64;..., director&#64;...</p>
           </div>
 
           <div class="relative">
-            <input type="password" id="password" [(ngModel)]="password" name="password" required
-                   class="block px-2.5 pb-2.5 pt-5 w-full text-sm text-white bg-transparent border-0 border-b-2 border-white/20 appearance-none focus:outline-none focus:ring-0 focus:border-newera-primary peer" placeholder=" " />
+            <input [type]="showPassword ? 'text' : 'password'" id="password" [(ngModel)]="password" name="password" required
+                   [ngClass]="loginErrors['password'] || loginErrors['credentials'] ? 'text-red-100 border-red-500 focus:border-red-500' : 'text-white border-white/20 focus:border-newera-primary'"
+                   class="block px-2.5 pb-2.5 pt-5 w-full text-sm bg-transparent border-0 border-b-2 appearance-none focus:outline-none focus:ring-0 peer pr-10" placeholder=" " />
             <label for="password" 
-                   class="absolute text-sm text-newera-text-muted duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-2.5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4 peer-focus:text-newera-primary">
+                   [ngClass]="loginErrors['password'] || loginErrors['credentials'] ? 'text-red-500 peer-focus:text-red-500' : 'text-newera-text-muted peer-focus:text-newera-primary'"
+                   class="absolute text-sm duration-300 transform -translate-y-4 scale-75 top-4 z-10 origin-[0] left-2.5 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-4">
               Contraseña
             </label>
+            <button type="button" (click)="showPassword = !showPassword" tabindex="-1" class="absolute right-2 top-5 text-white/50 hover:text-white transition-colors">
+              <svg *ngIf="!showPassword" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              <svg *ngIf="showPassword" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+              </svg>
+            </button>
           </div>
 
-          <!-- Error Message -->
-          <div *ngIf="errorMessage" class="p-3 mb-4 text-sm font-semibold text-newera-loss bg-newera-loss/10 border border-newera-loss/30 rounded-lg flex items-center gap-2">
-            <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-            {{ errorMessage }}
-          </div>
+
 
           <button type="submit" [disabled]="isLoading" class="btn-premium w-full mt-8 flex justify-center uppercase tracking-widest text-sm disabled:opacity-50 disabled:cursor-not-allowed">
             {{ isLoading ? 'Conectando...' : 'Iniciar Sesión' }}
@@ -105,16 +144,40 @@ import { LoadingService } from '../../core/services/loading.service';
 })
 export class LoginComponent {
   email: string = '';
-  password: string = '12345678'; // Contraseña por defecto actualizada
-  errorMessage: string = '';
+  password: string = '';
+  showPassword: boolean = false;
+  loginErrors: any = {};
+  toastMessage: string | null = null;
+  toastType: 'success' | 'warning' | 'error' = 'success';
   isLoading: boolean = false;
 
   constructor(private authService: AuthService, private router: Router, private loadingService: LoadingService) {}
 
+  showToast(msg: string, type: 'success' | 'warning' | 'error' = 'success') {
+    this.toastMessage = msg;
+    this.toastType = type;
+    setTimeout(() => {
+      this.toastMessage = null;
+    }, 3000);
+  }
+
   onSubmit() {
-    this.errorMessage = '';
-    
-    if (this.email && this.password) {
+    this.loginErrors = {};
+    let hasError = false;
+
+    if (!this.email) {
+      this.showToast('Por favor, ingresa tu correo electrónico.', 'warning');
+      this.loginErrors['email'] = true;
+      hasError = true;
+    }
+    if (!this.password) {
+      if (!hasError) this.showToast('Por favor, ingresa tu contraseña.', 'warning');
+      this.loginErrors['password'] = true;
+      hasError = true;
+    }
+
+    if (hasError) return;
+
       this.isLoading = true; // Used to disable the button
       this.loadingService.show('radar', 'Autenticando...'); // Global Spinner
 
@@ -138,20 +201,19 @@ export class LoginComponent {
           this.loadingService.hide();
           this.isLoading = false;
           
-          // Manejar error de autenticación devuelto por el Backend
           if (err.status === 401) {
-            this.errorMessage = 'Credenciales incorrectas o usuario no encontrado.';
+            this.showToast('Credenciales incorrectas o usuario no encontrado.', 'error');
+            this.loginErrors['email'] = true;
+            this.loginErrors['credentials'] = true;
           } else if (err.status === 403) {
-            this.errorMessage = 'Acceso denegado. Tu cuenta se encuentra INHABILITADA o BLOQUEADA.';
+            this.showToast('Acceso denegado. Tu cuenta se encuentra INHABILITADA o BLOQUEADA.', 'error');
+            this.loginErrors['email'] = true;
           } else if (err.status === 0) {
-             this.errorMessage = 'No se pudo conectar con el servidor (Gateway no disponible).';
+             this.showToast('No se pudo conectar con el servidor (Gateway no disponible).', 'error');
           } else {
-            this.errorMessage = 'Ocurrió un error inesperado (' + err.status + ').';
+            this.showToast('Ocurrió un error inesperado (' + err.status + ').', 'error');
           }
         }
       });
-    } else {
-      this.errorMessage = 'Por favor, ingresa tu correo y contraseña.';
-    }
   }
 }

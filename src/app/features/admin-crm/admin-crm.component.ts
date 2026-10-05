@@ -28,6 +28,7 @@ export class AdminCrmComponent implements OnInit {
   showNotaConfirmModal: boolean = false;
 
   toastMessage: string | null = null;
+  toastType: 'success' | 'warning' | 'error' = 'success';
 
   cajaForm = {
     tipo: 'DEPOSITO',
@@ -48,6 +49,7 @@ export class AdminCrmComponent implements OnInit {
 
   isNewClientModalOpen: boolean = false;
   newClientErrorMessage: string = '';
+  newClientErrors: any = {};
   newClient = {
     nombreCompleto: '',
     nombrePila: '',
@@ -60,6 +62,8 @@ export class AdminCrmComponent implements OnInit {
     hobbie: '',
     pass: ''
   };
+  correoStatus: 'valid' | 'invalid' | 'loading' | null = null;
+  telefonoStatus: 'valid' | 'invalid' | 'loading' | null = null;
   totalDepositosAprobados: number = 0;
   totalRetirosAprobados: number = 0;
 
@@ -148,10 +152,20 @@ export class AdminCrmComponent implements OnInit {
       admins: this.adminCrmService.getAdmins()
     }).subscribe({
       next: ({ clientes, asignaciones, admins }) => {
-        // Guardar admins activos globalmente
-        this.activeAdmins = admins.filter(a => a.usuarioAuth?.estado === 'ACTIVO' && a.usuarioAuth?.rol !== 'DIRECTOR');
+        // Guardar admins activos globalmente (Solo GERENTES y EJECUTIVOS)
+        this.activeAdmins = admins.filter(a => 
+          a.usuarioAuth?.estado === 'ACTIVO' && 
+          ['GERENTE', 'EJECUTIVO'].includes(a.usuarioAuth?.rol)
+        );
 
-        this.clients = clientes.map(c => {
+        this.clients = clientes
+          .filter(c => {
+            if (this.isSupremo) return true; // Director ve todos
+            const asigs = asignaciones.filter(a => a.idCliente === c.idUsuario);
+            const myId = this.authService.currentUser()?.id;
+            return asigs.some(a => a.idAdmin === myId); // Ejecutivo/Gerente ve solo los suyos
+          })
+          .map(c => {
           // Filtrar asignaciones de este cliente
           const asigs = asignaciones.filter(a => a.idCliente === c.idUsuario);
           
@@ -219,27 +233,20 @@ export class AdminCrmComponent implements OnInit {
   }
 
   loadSecureImages() {
-    this.urlFotoPerfilBlob = null;
-    this.urlIneFrenteBlob = null;
-    this.urlIneReversoBlob = null;
-
     const defaultAvatar = 'E:\\casino\\newEra\\fotoGenerica.png';
     const defaultIne = 'E:\\casino\\newEra\\credencial.png';
 
-    this.fetchBlob(this.selectedClient.urlFotoPerfil || defaultAvatar, 'urlFotoPerfilBlob');
-    this.fetchBlob(this.selectedClient.urlIneFrente || defaultIne, 'urlIneFrenteBlob');
-    this.fetchBlob(this.selectedClient.urlIneReverso || defaultIne, 'urlIneReversoBlob');
+    this.urlFotoPerfilBlob = this.buildMediaUrl(this.selectedClient.urlFotoPerfil || defaultAvatar);
+    this.urlIneFrenteBlob = this.buildMediaUrl(this.selectedClient.urlIneFrente || defaultIne);
+    this.urlIneReversoBlob = this.buildMediaUrl(this.selectedClient.urlIneReverso || defaultIne);
   }
 
-  fetchBlob(path: string, prop: 'urlFotoPerfilBlob' | 'urlIneFrenteBlob' | 'urlIneReversoBlob') {
-    const url = `${environment.apiUrl}/usuarios/media?path=${encodeURIComponent(path)}`;
-    this.http.get(url, { responseType: 'blob' }).subscribe({
-      next: (blob) => {
-        const objectUrl = URL.createObjectURL(blob);
-        this[prop] = this.sanitizer.bypassSecurityTrustUrl(objectUrl);
-      },
-      error: (err) => console.error('Error fetching image', err)
-    });
+  buildMediaUrl(path: string): string {
+    if (!path) return '';
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+    return `${environment.apiUrl}/usuarios/media?path=${encodeURIComponent(path)}`;
   }
 
   loadApuestasCliente() {
@@ -290,31 +297,101 @@ export class AdminCrmComponent implements OnInit {
 
   closeNewClientModal() {
     this.isNewClientModalOpen = false;
+    this.newClientErrors = {};
+    this.correoStatus = null;
+    this.telefonoStatus = null;
+  }
+
+  onCorreoBlur() {
+    if (!this.newClient.correo || !this.newClient.correo.includes('@')) {
+      this.correoStatus = null;
+      return;
+    }
+    this.correoStatus = 'loading';
+    this.adminCrmService.checkCorreo(this.newClient.correo).subscribe({
+      next: (res) => {
+        this.correoStatus = res.exists ? 'invalid' : 'valid';
+        if (res.exists) {
+          this.showToast('El correo ingresado ya está registrado.', 'error');
+        }
+      },
+      error: () => {
+        this.correoStatus = null;
+      }
+    });
+  }
+
+  onTelefonoBlur() {
+    if (!this.newClient.telefono || this.newClient.telefono.trim().length < 10) {
+      this.telefonoStatus = null;
+      return;
+    }
+    this.telefonoStatus = 'loading';
+    this.adminCrmService.checkTelefono(this.newClient.telefono).subscribe({
+      next: (res) => {
+        this.telefonoStatus = res.exists ? 'invalid' : 'valid';
+        if (res.exists) {
+          this.showToast('El teléfono ingresado ya está registrado.', 'error');
+        }
+      },
+      error: () => {
+        this.telefonoStatus = null;
+      }
+    });
   }
 
   requestSaveNewClient() {
     this.newClientErrorMessage = '';
+    this.newClientErrors = {};
+    let hasError = false;
     
-    if (!this.newClient.correo || !this.newClient.correo.includes('@')) {
-      this.newClientErrorMessage = 'Ingresa un correo electrónico válido.';
-      return;
-    }
-    if (!this.newClient.nombreCompleto || this.newClient.nombreCompleto.trim().length < 3) {
-      this.newClientErrorMessage = 'Ingresa un nombre completo válido (mínimo 3 caracteres).';
-      return;
-    }
-    if (!this.newClient.telefono || this.newClient.telefono.trim().length < 10) {
-      this.newClientErrorMessage = 'Ingresa un teléfono válido (mínimo 10 dígitos).';
-      return;
+    if (!this.newClient.correo || !this.newClient.correo.includes('@') || this.correoStatus === 'invalid') {
+      if (!hasError && this.correoStatus === 'invalid') this.showToast('El correo ya está registrado.', 'error');
+      else if (!hasError) this.showToast('Ingresa un correo electrónico válido.', 'warning');
+      this.newClientErrors['correo'] = true;
+      hasError = true;
     }
     if (!this.newClient.pass || this.newClient.pass.trim().length < 6) {
-      this.newClientErrorMessage = 'La contraseña es obligatoria (mínimo 6 caracteres).';
-      return;
+      if (!hasError) this.showToast('La contraseña es obligatoria (mínimo 6 caracteres).', 'warning');
+      this.newClientErrors['pass'] = true;
+      hasError = true;
+    }
+    if (!this.newClient.nombreCompleto || this.newClient.nombreCompleto.trim().length < 3) {
+      if (!hasError) this.showToast('Ingresa un nombre completo válido (mínimo 3 caracteres).', 'warning');
+      this.newClientErrors['nombreCompleto'] = true;
+      hasError = true;
+    }
+    if (!this.newClient.telefono || this.newClient.telefono.trim().length < 10 || this.telefonoStatus === 'invalid') {
+      if (!hasError && this.telefonoStatus === 'invalid') this.showToast('El teléfono ya está registrado.', 'error');
+      else if (!hasError) this.showToast('Ingresa un teléfono válido (mínimo 10 dígitos).', 'warning');
+      this.newClientErrors['telefono'] = true;
+      hasError = true;
+    }
+    if (!this.newClient.fechaNacimiento) {
+      if (!hasError) this.showToast('La fecha de nacimiento es obligatoria para el KYC.', 'warning');
+      this.newClientErrors['fechaNacimiento'] = true;
+      hasError = true;
+    } else {
+      const birthDate = new Date(this.newClient.fechaNacimiento);
+      const today = new Date();
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+      if (age < 18) {
+        if (!hasError) this.showToast('El cliente debe ser mayor de 18 años.', 'error');
+        this.newClientErrors['fechaNacimiento'] = true;
+        hasError = true;
+      }
     }
     if (!this.newClient.experienciaTrading || this.newClient.experienciaTrading.trim() === '') {
-      this.newClientErrorMessage = 'Selecciona el nivel de experiencia en trading.';
-      return;
+      if (!hasError) this.showToast('Selecciona el nivel de experiencia en trading.', 'warning');
+      this.newClientErrors['experienciaTrading'] = true;
+      hasError = true;
     }
+
+    if (hasError) return;
     
     this.loadingService.show('radar', 'Registrando cliente...');
     const payload = {
@@ -340,7 +417,7 @@ export class AdminCrmComponent implements OnInit {
       error: (err) => {
         this.loadingService.hide();
         console.error(err);
-        this.newClientErrorMessage = 'Error al registrar el cliente. Posiblemente el correo ya existe.';
+        this.showToast('Error al registrar el cliente. Posiblemente el correo ya existe.', 'error');
       }
     });
   }
@@ -369,7 +446,10 @@ export class AdminCrmComponent implements OnInit {
     if (!this.selectedClient) return;
     this.adminCrmService.getAsignacionesCliente(this.selectedClient.id).subscribe({
       next: (data) => {
-        this.clientAsignaciones = data;
+        // Solo mostrar asignaciones de Ejecutivos y Gerentes (los que están en activeAdmins)
+        this.clientAsignaciones = data.filter((asig: any) => 
+          this.activeAdmins.some(admin => admin.idUsuario === asig.idAdmin)
+        );
       },
       error: (err) => console.error(err)
     });
@@ -498,12 +578,12 @@ export class AdminCrmComponent implements OnInit {
     this.cajaExito = '';
 
     if (!this.cajaForm.monto || this.cajaForm.monto <= 0) {
-      this.cajaError = 'Ingresa un monto válido mayor a 0.';
+      this.showToast('Ingresa un monto válido mayor a 0.', 'error');
       return;
     }
 
     if (this.cajaForm.tipo === 'RETIRO' && this.selectedClient.margenLibre < this.cajaForm.monto) {
-      this.cajaError = 'Fondos insuficientes. El monto supera el margen libre del cliente.';
+      this.showToast('Fondos insuficientes. El monto supera el margen libre del cliente.', 'error');
       return;
     }
 
@@ -518,8 +598,7 @@ export class AdminCrmComponent implements OnInit {
     this.showCajaConfirmModal = false;
     this.loadingService.show('radar', 'Procesando transacción...');
     
-    const authUser = JSON.parse(sessionStorage.getItem('authUser') || '{}');
-    const adminId = authUser.idUsuario || null;
+    const adminId = this.authService.currentUser()?.id || null;
 
     const payload = {
       usuario: { idUsuario: this.selectedClient.id },
@@ -533,13 +612,13 @@ export class AdminCrmComponent implements OnInit {
     this.adminCrmService.solicitarCaja(payload).subscribe({
       next: () => {
         this.loadingService.hide();
-        this.cajaExito = 'Transacción solicitada correctamente. Pasó a estado PENDIENTE de Aprobación.';
+        this.showToast('Transacción solicitada correctamente. Pasó a estado PENDIENTE de Aprobación.', 'success');
         this.cajaForm = { tipo: 'DEPOSITO', metodo: 'TRANSFERENCIA', monto: null, referencia: '', notas: '' };
         this.loadTransaccionesCaja();
       },
       error: (err) => {
         this.loadingService.hide();
-        this.cajaError = 'Error al procesar: ' + err.message;
+        this.showToast('Error al procesar: ' + err.message, 'error');
       }
     });
   }
@@ -744,8 +823,9 @@ export class AdminCrmComponent implements OnInit {
     const posIdNum = typeof this.positionToClose === 'string' ? parseInt(this.positionToClose, 10) : this.positionToClose;
     const pos = this.mockPositions.find(p => p.id === posIdNum);
     const pnl = pos?.pnl || 0;
+    const adminId = this.authService.currentUser()?.id;
 
-    this.adminCrmService.cerrarPosicion(this.positionToClose, pnl).subscribe({
+    this.adminCrmService.cerrarPosicion(this.positionToClose, pnl, adminId).subscribe({
       next: () => {
         this.loadingService.hide();
         this.showToast(`Posición ${this.positionToClose} cerrada exitosamente.`);
@@ -762,8 +842,9 @@ export class AdminCrmComponent implements OnInit {
     });
   }
 
-  showToast(msg: string) {
+  showToast(msg: string, type: 'success' | 'warning' | 'error' = 'success') {
     this.toastMessage = msg;
+    this.toastType = type;
     setTimeout(() => {
       this.toastMessage = null;
     }, 3000);

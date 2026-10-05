@@ -18,6 +18,7 @@ export class AdminGlobalComponent implements OnInit, AfterViewInit, OnDestroy {
   private areaSeries!: ISeriesApi<"Area">;
   
   stats = signal<DashboardGlobalStats | null>(null);
+  selectedRange: number = 30;
 
   constructor(private dashboardService: DashboardService) {}
 
@@ -55,6 +56,7 @@ export class AdminGlobalComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       timeScale: {
         borderColor: 'rgba(255, 255, 255, 0.1)',
+        timeVisible: true,
       },
       rightPriceScale: {
         borderColor: 'rgba(255, 255, 255, 0.1)',
@@ -68,23 +70,7 @@ export class AdminGlobalComponent implements OnInit, AfterViewInit, OnDestroy {
       lineWidth: 2,
     });
 
-    this.dashboardService.getChartData(30).subscribe({
-      next: (chartData) => {
-        if (chartData && chartData.length > 0) {
-          this.areaSeries.setData(chartData);
-        } else {
-          // Fallback empty data to prevent crash
-          const now = new Date();
-          const y = now.getFullYear();
-          const m = String(now.getMonth() + 1).padStart(2, '0');
-          const d = String(now.getDate()).padStart(2, '0');
-          this.areaSeries.setData([{ time: `${y}-${m}-${d}`, value: 0 }]);
-        }
-        this.chart.timeScale().fitContent();
-      },
-      error: (err) => console.error('Error loading chart data', err)
-    });
-    this.chart.timeScale().fitContent();
+    this.loadChartData(this.selectedRange);
 
     // Auto resize
     new ResizeObserver(entries => {
@@ -92,5 +78,27 @@ export class AdminGlobalComponent implements OnInit, AfterViewInit, OnDestroy {
       const newRect = entries[0].contentRect;
       this.chart.applyOptions({ width: newRect.width, height: newRect.height });
     }).observe(this.chartContainer.nativeElement);
+  }
+
+  setChartRange(days: number) {
+    if (this.selectedRange === days) return;
+    this.selectedRange = days;
+    this.loadChartData(days);
+  }
+
+  private loadChartData(days: number) {
+    this.dashboardService.getChartData(days).subscribe({
+      next: (chartData) => {
+        if (chartData && chartData.length > 0) {
+          this.areaSeries.setData(chartData as any);
+        } else {
+          // Fallback empty data to prevent crash
+          const timeSeconds = Math.floor(Date.now() / 1000);
+          this.areaSeries.setData([{ time: timeSeconds as any, value: 0 }]);
+        }
+        this.chart.timeScale().fitContent();
+      },
+      error: (err) => console.error('Error loading chart data', err)
+    });
   }
 }
