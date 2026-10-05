@@ -1,5 +1,5 @@
 
-    <div class="h-full p-6 flex flex-col gap-6 animate-in fade-in duration-300">
+    <div class="min-h-full md:h-full p-6 flex flex-col gap-6 animate-in fade-in duration-300">
       
       <!-- Encabezado y Acción Principal -->
       <div class="flex flex-col md:flex-row md:items-center justify-between border-b border-white/10 pb-4 shrink-0 gap-4">
@@ -286,7 +286,6 @@
                         {{ nota.colaborador?.nombrePila?.charAt(0) || nota.colaborador?.correo?.charAt(0) || 'E' }}
                       </div>
                       <span class="text-white text-xs font-bold">{{ nota.colaborador?.nombreCompleto || nota.colaborador?.correo || 'Ejecutivo' }}</span>
-                      <span class="text-white/30 text-[10px] font-mono">• ID: {{ nota.colaborador?.idUsuario }}</span>
                     </div>
                     <span class="text-[10px] text-white/40 font-mono flex items-center gap-1">
                       <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -547,7 +546,7 @@
                   </div>
                 </div>
 
-                <div class="flex gap-2">
+                <div class="flex flex-col sm:flex-row gap-2">
                   <div class="flex-1 bg-green-500/10 text-green-400 border border-green-500/30 p-3 rounded flex justify-between items-center">
                     <span class="text-[10px] font-bold uppercase tracking-widest">Depósitos (Aprobados)</span>
                     <span class="font-mono font-bold">+${{ totalDepositosAprobados | number:'1.2-6' }}</span>

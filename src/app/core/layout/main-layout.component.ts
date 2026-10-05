@@ -125,7 +125,7 @@ import { TradingSocketService } from '../services/trading-socket.service';
             </button>
 
             <!-- Notifications Dropdown -->
-            <div *ngIf="showNotifications" class="absolute top-full mt-2 right-12 w-80 max-h-96 glass-panel bg-[#111111]/95 border border-white/10 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+            <div *ngIf="showNotifications" class="absolute top-full mt-2 right-2 sm:right-12 w-[92vw] sm:w-80 max-h-96 max-w-sm glass-panel bg-[#111111]/95 border border-white/10 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
               <div class="p-4 border-b border-white/10 flex justify-between items-center bg-black/20">
                 <h3 class="font-bold text-white text-sm">Notificaciones</h3>
                 <span class="text-[10px] bg-newera-primary/20 text-newera-primary px-2 py-0.5 rounded-full">{{ unreadCount() }} nuevas</span>
