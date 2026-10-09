@@ -114,6 +114,6 @@ export class SidebarActivosComponent {
   }
 
   getPricesByCategory(category: string): PriceData[] {
-    return this.prices().filter(p => p.categoria === category);
+    return this.prices().filter(p => p.categoria === category && ((p.precioVenta || 0) > 0 || (p.precioCompra || 0) > 0 || (p.precioActual || 0) > 0));
   }
 }

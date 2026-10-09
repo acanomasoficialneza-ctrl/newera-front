@@ -20,12 +20,12 @@ import { TradingSocketService } from '../services/trading-socket.service';
         <!-- Logo -->
         <div class="h-16 flex items-center justify-center border-b border-white/5 shrink-0"
              [ngClass]="isSidebarCollapsed() ? 'px-0' : 'px-6 lg:justify-start'">
-          <div class="w-8 h-8 rounded-lg bg-newera-primary flex items-center justify-center shadow-[0_0_15px_rgba(37,99,235,0.4)] shrink-0">
-            <span class="text-black font-bold text-lg leading-none">N</span>
+          <div class="flex items-center justify-center shrink-0">
+            <img src="/assets/favicon.png" alt="NOVA" class="w-8 h-8 object-contain drop-shadow-[0_0_10px_rgba(37,99,235,0.8)]">
           </div>
           <h1 class="ml-3 text-xl font-bold tracking-widest text-white uppercase whitespace-nowrap overflow-hidden transition-all duration-300"
               [ngClass]="isSidebarCollapsed() ? 'w-0 opacity-0 ml-0' : 'w-auto opacity-100'">
-            NewEra
+            NOVA CAPITAL
           </h1>
         </div>
 
@@ -75,13 +75,17 @@ import { TradingSocketService } from '../services/trading-socket.service';
         <header class="h-16 border-b border-white/5 bg-[#0B0E14] flex items-center justify-between px-6 shrink-0 z-10">
           
           <div class="flex items-center gap-4">
+            <!-- Logo Móvil -->
+            <div class="md:hidden flex items-center justify-center shrink-0">
+              <img src="/assets/favicon.png" alt="NOVA" class="w-8 h-8 object-contain drop-shadow-[0_0_10px_rgba(37,99,235,0.8)]">
+            </div>
+
             <!-- Sidebar Toggle Button (Desktop) -->
             <button (click)="toggleSidebar()" class="hidden md:flex items-center justify-center w-8 h-8 rounded-lg text-newera-text-muted hover:text-white hover:bg-white/5 transition-colors">
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-
           </div>
 
           <div class="flex items-center gap-4 ml-auto relative">

@@ -93,11 +93,9 @@ import { LoadingService } from '../../core/services/loading.service';
       <div class="glass-panel w-full max-w-md p-10 relative z-10 rounded-3xl">
         
         <div class="mb-10 text-center flex flex-col items-center">
-          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-newera-primary to-blue-900 shadow-[0_0_30px_rgba(37,99,235,0.3)] mb-6 flex items-center justify-center">
-             <span class="text-white font-bold text-3xl">N</span>
+          <div class="flex items-center justify-center">
+             <img src="/assets/logo-vertical.png" alt="NOVA CAPITAL" class="w-64 h-auto object-contain drop-shadow-[0_0_15px_rgba(37,99,235,0.5)]">
           </div>
-          <h1 class="text-3xl font-bold tracking-tight text-white mb-2">Acceso NewEra</h1>
-          <p class="text-newera-text-muted text-sm">Plataforma Institucional</p>
         </div>
 
         <form (ngSubmit)="onSubmit()" class="space-y-6">
