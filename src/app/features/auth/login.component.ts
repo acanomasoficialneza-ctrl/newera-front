@@ -161,7 +161,10 @@ export class LoginComponent {
   }
 
   getLogoUrl(): string {
-    return `${environment.apiUrl}/usuarios/media?path=${encodeURIComponent('/var/www/shared/assets/novacapital/logos/logo-vertical.png')}`;
+    if (environment.production) {
+      return `${environment.apiUrl}/usuarios/media?path=${encodeURIComponent('/var/www/shared/assets/novacapital/logos/logo-vertical.png')}`;
+    }
+    return 'assets/novacapital/logos/logo-vertical.png';
   }
 
   onSubmit() {

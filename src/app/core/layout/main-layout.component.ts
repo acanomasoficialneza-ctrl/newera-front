@@ -250,7 +250,10 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   isSidebarCollapsed = signal(false); // Por defecto abierto en Desktop
 
   getLogoUrl(): string {
-    return `${environment.apiUrl}/usuarios/media?path=${encodeURIComponent('/var/www/shared/assets/novacapital/logos/favicon.png')}`;
+    if (environment.production) {
+      return `${environment.apiUrl}/usuarios/media?path=${encodeURIComponent('/var/www/shared/assets/novacapital/logos/favicon.png')}`;
+    }
+    return 'assets/novacapital/logos/favicon.png';
   }
 
   showNotifications = false;
