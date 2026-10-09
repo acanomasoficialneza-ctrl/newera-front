@@ -21,7 +21,7 @@ import { TradingSocketService } from '../services/trading-socket.service';
         <div class="h-16 flex items-center justify-center border-b border-white/5 shrink-0"
              [ngClass]="isSidebarCollapsed() ? 'px-0' : 'px-6 lg:justify-start'">
           <div class="flex items-center justify-center shrink-0">
-            <img src="assets/favicon.png" alt="NOVA" class="w-8 h-8 object-contain drop-shadow-[0_0_10px_rgba(37,99,235,0.8)]">
+            <img src="images/favicon.png" alt="NOVA" class="w-8 h-8 object-contain drop-shadow-[0_0_10px_rgba(37,99,235,0.8)]">
           </div>
           <h1 class="ml-3 text-xl font-bold tracking-widest text-white uppercase whitespace-nowrap overflow-hidden transition-all duration-300"
               [ngClass]="isSidebarCollapsed() ? 'w-0 opacity-0 ml-0' : 'w-auto opacity-100'">
@@ -77,7 +77,7 @@ import { TradingSocketService } from '../services/trading-socket.service';
           <div class="flex items-center gap-4">
             <!-- Logo Móvil -->
             <div class="md:hidden flex items-center justify-center shrink-0">
-              <img src="assets/favicon.png" alt="NOVA" class="w-8 h-8 object-contain drop-shadow-[0_0_10px_rgba(37,99,235,0.8)]">
+              <img src="images/favicon.png" alt="NOVA" class="w-8 h-8 object-contain drop-shadow-[0_0_10px_rgba(37,99,235,0.8)]">
             </div>
 
             <!-- Sidebar Toggle Button (Desktop) -->

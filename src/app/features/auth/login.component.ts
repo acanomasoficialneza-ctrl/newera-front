@@ -94,7 +94,7 @@ import { LoadingService } from '../../core/services/loading.service';
         
         <div class="mb-10 text-center flex flex-col items-center">
           <div class="flex items-center justify-center">
-             <img src="assets/logo-vertical.png" alt="NOVA CAPITAL" class="w-64 h-auto object-contain drop-shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+             <img src="images/logo-vertical.png" alt="NOVA CAPITAL" class="w-64 h-auto object-contain drop-shadow-[0_0_15px_rgba(37,99,235,0.5)]">
           </div>
         </div>
 
