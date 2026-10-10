@@ -95,7 +95,7 @@ import { environment } from '../../../environments/environment';
         
         <div class="mb-10 text-center flex flex-col items-center">
           <div class="flex items-center justify-center">
-             <img src="/logos/logo-vertical.png" alt="NOVA CAPITAL" class="w-64 h-auto object-contain drop-shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+             <img src="assets/novacapital/logos/logo-vertical.png" alt="NOVA CAPITAL" class="w-64 h-auto object-contain drop-shadow-[0_0_15px_rgba(37,99,235,0.5)]">
           </div>
         </div>
 
