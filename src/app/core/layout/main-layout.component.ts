@@ -5,6 +5,8 @@ import { AuthService, CurrentUser } from '../services/auth.service';
 import { NotificationService, AlertaCampanita } from '../services/notification.service';
 import { AdminCrmService } from '../services/admin-crm.service';
 import { TradingSocketService } from '../services/trading-socket.service';
+import { InactivityService } from '../services/inactivity.service';
+import { EodMarketSocketService } from '../services/eod-market-socket.service';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -140,7 +142,7 @@ import { environment } from '../../../environments/environment';
                   No tienes notificaciones
                 </div>
                 <div *ngFor="let notif of notifications()" 
-                     (click)="markAsRead(notif)"
+                     (click)="handleNotificationClick(notif)"
                      class="p-4 border-b border-white/5 hover:bg-white/5 cursor-pointer transition-colors relative"
                      [ngClass]="{'bg-newera-primary/5': !notif.leido}">
                   <div *ngIf="!notif.leido" class="absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-newera-primary shadow-[0_0_5px_rgba(37,99,235,0.8)]"></div>
@@ -159,8 +161,11 @@ import { environment } from '../../../environments/environment';
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
                     </div>
-                    <div>
-                      <p class="text-xs font-bold" [ngClass]="notif.leido ? 'text-white/70' : 'text-white'">{{ notif.titulo }}</p>
+                    <div class="flex-1">
+                      <div class="flex items-center justify-between">
+                        <p class="text-xs font-bold" [ngClass]="notif.leido ? 'text-white/70' : 'text-white'">{{ notif.titulo }}</p>
+                        <span *ngIf="notif.tipo === 'WARNING' && currentUser()?.role === 'DIRECTOR'" class="text-[9px] bg-orange-500/20 text-orange-400 font-bold px-1.5 py-0.5 rounded border border-orange-500/30">Asignar</span>
+                      </div>
                       <p class="text-[10px] text-newera-text-muted mt-1 leading-tight">{{ notif.mensaje }}</p>
                       <p class="text-[9px] text-white/30 mt-2 font-mono">{{ notif.fechaCreacion | date:'dd/MM/yyyy HH:mm' }}</p>
                     </div>
@@ -237,6 +242,42 @@ import { environment } from '../../../environments/environment';
         </div>
       </div>
 
+      <!-- Realtime Toast Banner for New Client (Director Alert) -->
+      <div *ngIf="activeClientToast" class="fixed top-20 right-4 z-50 max-w-sm w-[92vw] sm:w-96 bg-[#161616]/95 border border-orange-500/40 shadow-[0_10px_30px_rgba(249,115,22,0.25)] rounded-2xl p-4 backdrop-blur-xl animate-in slide-in-from-right-4 duration-300">
+        <div class="flex items-start gap-3">
+          <div class="p-2.5 bg-orange-500/10 border border-orange-500/30 rounded-xl text-orange-400 shrink-0">
+            <svg class="w-6 h-6 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between gap-2">
+              <h4 class="text-sm font-bold text-white tracking-wide flex items-center gap-2">
+                {{ activeClientToast.titulo }}
+                <span class="w-2 h-2 rounded-full bg-orange-500 animate-ping"></span>
+              </h4>
+              <button (click)="dismissToast()" class="text-white/40 hover:text-white transition-colors p-1">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <p class="text-xs text-white/70 mt-1 leading-snug">{{ activeClientToast.mensaje }}</p>
+            <div class="mt-3 flex items-center justify-end gap-2">
+              <button (click)="dismissToast()" class="px-3 py-1.5 text-xs text-white/50 hover:text-white transition-colors">
+                Ignorar
+              </button>
+              <button (click)="goToAssignClient(activeClientToast)" class="px-4 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 rounded-lg shadow-[0_0_15px_rgba(249,115,22,0.4)] transition-all flex items-center gap-1.5">
+                <span>Asignar en CRM</span>
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   `
 })
@@ -252,6 +293,8 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   showNotifications = false;
   notifications = signal<AlertaCampanita[]>([]);
   unreadCount = computed(() => this.notifications().filter(n => !n.leido).length);
+  activeClientToast: AlertaCampanita | null = null;
+  private toastTimer: any = null;
   private pollingInterval: any;
 
   // Iconos SVG paths (Heroicons)
@@ -299,7 +342,9 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     private router: Router, 
     private notificationService: NotificationService, 
     private adminCrmService: AdminCrmService,
-    private tradingSocketService: TradingSocketService
+    private tradingSocketService: TradingSocketService,
+    private inactivityService: InactivityService,
+    private eodSocketService: EodMarketSocketService
   ) {}
 
   ngOnInit() {
@@ -314,6 +359,8 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
         if (idUser) {
           this.tradingSocketService.connectBalance(idUser);
         }
+        // Iniciar monitoreo de inactividad solo para CLIENTE
+        this.inactivityService.startTracking();
       }
     }
   }
@@ -338,20 +385,72 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     if (this.notificationSubscription) {
       this.notificationSubscription.unsubscribe();
     }
-    // Siempre desconectamos el socket al destruir el layout por seguridad, 
-    // sin importar el rol actual (que podría ya ser null si se llamó logout antes).
+    this.inactivityService.stopTracking();
     this.tradingSocketService.disconnectBalance();
   }
 
   private notificationSubscription: any;
+  private knownNotificationIds = new Set<number>();
 
   loadNotifications() {
     const user = this.currentUser();
     if (user && user.id) {
       this.notificationSubscription = this.notificationService.getNotificaciones(user.id).subscribe({
-        next: (data) => this.notifications.set(data),
+        next: (data) => {
+          // Detectar nuevas notificaciones de tipo WARNING para DIRECTORES
+          if (user.role === 'DIRECTOR') {
+            const nuevas = data.filter(n => !n.leido && !this.knownNotificationIds.has(n.idAlerta));
+            const nuevoClienteAlerta = nuevas.find(n => n.tipo === 'WARNING');
+            if (nuevoClienteAlerta) {
+              this.showLiveToast(nuevoClienteAlerta);
+            }
+          }
+          // Guardar IDs conocidos
+          data.forEach(n => this.knownNotificationIds.add(n.idAlerta));
+          this.notifications.set(data);
+        },
         error: (err) => console.error("Error cargando notificaciones", err)
       });
+    }
+  }
+
+  showLiveToast(alerta: AlertaCampanita) {
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+    }
+    this.activeClientToast = alerta;
+    // Auto descartar a los 12 segundos
+    this.toastTimer = setTimeout(() => {
+      this.activeClientToast = null;
+    }, 12000);
+  }
+
+  dismissToast() {
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    this.activeClientToast = null;
+  }
+
+  goToAssignClient(notif: AlertaCampanita) {
+    this.markAsRead(notif);
+    this.dismissToast();
+    this.showNotifications = false;
+
+    // Extraer ID del cliente del mensaje (formato: "ID: #123")
+    const match = notif.mensaje.match(/ID:\s*#?(\d+)/i);
+    const clientId = match ? match[1] : null;
+
+    if (clientId) {
+      this.router.navigate(['/app/admin/crm'], { queryParams: { clientId } });
+    } else {
+      this.router.navigate(['/app/admin/crm']);
+    }
+  }
+
+  handleNotificationClick(notif: AlertaCampanita) {
+    if (notif.tipo === 'WARNING' && this.currentUser()?.role === 'DIRECTOR') {
+      this.goToAssignClient(notif);
+    } else {
+      this.markAsRead(notif);
     }
   }
 
@@ -399,7 +498,9 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   logout() {
     this.showLogoutModal = false;
     
-    // Limpiamos los ciclos manualmente antes de que se destruya para mayor seguridad
+    this.inactivityService.stopTracking();
+    this.eodSocketService.disconnectAll();
+
     if (this.notificationSubscription) {
       this.notificationSubscription.unsubscribe();
     }

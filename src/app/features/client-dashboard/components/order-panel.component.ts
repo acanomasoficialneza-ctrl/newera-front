@@ -30,9 +30,11 @@ import { AuthService } from '../../../core/services/auth.service';
         <div>
           <h2 class="text-white font-bold text-lg tracking-wide uppercase">{{ selectedAsset() || 'SELECCIONA ACTIVO' }}</h2>
           <div class="flex items-center gap-2 mt-1">
-            <span class="w-1.5 h-1.5 rounded-full" [ngClass]="isConnected() ? 'bg-newera-profit animate-pulse' : 'bg-newera-loss'"></span>
-            <p class="text-[10px] text-white/50 tracking-wider font-mono">
-              {{ isConnected() ? 'LIVE DATA' : 'OFFLINE' }}
+            <span class="w-1.5 h-1.5 rounded-full" 
+                  [ngClass]="isAccionesAndClosed() ? 'bg-amber-400' : (isConnected() ? 'bg-newera-profit animate-pulse' : 'bg-newera-loss')"></span>
+            <p class="text-[10px] tracking-wider font-mono"
+               [ngClass]="isAccionesAndClosed() ? 'text-amber-300 font-bold' : 'text-white/50'">
+              {{ isAccionesAndClosed() ? 'MERCADO CERRADO • ÚLTIMO CIERRE' : (isConnected() ? 'LIVE DATA' : 'OFFLINE') }}
             </p>
           </div>
         </div>
@@ -47,6 +49,17 @@ import { AuthService } from '../../../core/services/auth.service';
       <div class="flex-1 p-5 overflow-y-auto space-y-6 flex flex-col relative z-10"
            [ngClass]="{'opacity-50 pointer-events-none blur-[1px]': !isConnected()}">
         
+        <!-- Alerta Mercado Cerrado para Acciones -->
+        <div *ngIf="isAccionesAndClosed()" class="bg-amber-500/10 border border-amber-500/25 rounded-xl p-3 flex items-start gap-2.5 text-amber-200 animate-in fade-in">
+          <svg class="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <div class="text-[11px] leading-relaxed">
+            <span class="font-bold text-amber-300">Mercado de acciones cerrado.</span>
+            El valor mostrado es el <strong>último de cierre del día</strong> (Wall Street: Lun-Vie 9:30-16:00 ET). Tu orden se registrará tomando este valor de referencia.
+          </div>
+        </div>
+
         <!-- Botones Compra / Venta -->
         <div class="grid grid-cols-2 gap-3 mb-6">
           <button (click)="setOperacion('COMPRAR')"
@@ -69,8 +82,16 @@ import { AuthService } from '../../../core/services/auth.service';
           <!-- Precio Actual Destacado -->
           <div class="bg-black/30 border border-white/5 rounded-xl p-4 flex justify-between items-center relative overflow-hidden group hover:border-white/10 transition-colors">
             <div class="absolute inset-0 bg-gradient-to-r from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div class="relative z-10">
-              <p class="text-[10px] uppercase tracking-widest font-bold mb-1 text-white/40">Precio Actual</p>
+            <div class="relative z-10 flex-1">
+              <div class="flex items-center justify-between mb-1">
+                <p class="text-[10px] uppercase tracking-widest font-bold text-white/40">
+                  {{ isAccionesAndClosed() ? 'Último Precio de Cierre' : 'Precio Actual' }}
+                </p>
+                <span *ngIf="isAccionesAndClosed()" 
+                      class="text-[9px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-1.5 py-0.5 rounded font-mono font-bold uppercase tracking-wider">
+                  Cierre del día
+                </span>
+              </div>
               <p class="text-xl font-mono font-bold text-white tracking-tight flex items-center gap-1">
                 <span class="text-white/30 text-sm">$</span>{{ currentPrice() | number:'1.2-6' }}
               </p>
@@ -177,9 +198,21 @@ export class OrderPanelComponent {
     return target ? (target.precioVenta || target.precioActual) : 0;
   });
 
-  // El precio actual se basa en la operacin seleccionada
+  // El precio actual se basa en la operación seleccionada
   currentPrice = computed(() => {
     return this.operacion() === 'COMPRAR' ? this.currentAsk() : this.currentBid();
+  });
+
+  isStockMarketOpen = computed(() => this.marketDataService.stockMarketOpen());
+
+  selectedCategory = computed(() => {
+    const prices = this.marketDataService.marketPrices();
+    const target = prices.find((p: PriceData) => p.simbolo === this.selectedAsset());
+    return target ? target.categoria : '';
+  });
+
+  isAccionesAndClosed = computed(() => {
+    return this.selectedCategory() === 'ACCIONES' && !this.isStockMarketOpen();
   });
   
   noCliente = computed(() => this.authService.currentUser()?.id || 0);

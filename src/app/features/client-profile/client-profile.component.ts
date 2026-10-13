@@ -7,6 +7,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { AdminCrmService } from '../../core/services/admin-crm.service';
 import { LoadingService } from '../../core/services/loading.service';
 import { environment } from '../../../environments/environment';
+import { ImageCompressor } from '../../core/utils/image-compressor';
 
 @Component({
   selector: 'app-client-profile',
@@ -134,42 +135,81 @@ export class ClientProfileComponent implements OnInit {
     this.fullscreenImageUrl = null;
   }
 
-  uploadFotoPerfil(event: any) {
-    const file = event.target.files[0];
-    if (!file) return;
+  async uploadFotoPerfil(event: any) {
+    const rawFile = event.target.files[0];
+    if (!rawFile) return;
+
+    // Reset input value para permitir volver a seleccionar el mismo archivo si es necesario
+    event.target.value = '';
+
+    // Mensaje dinámico: Si pesa más de 2MB, se avisa que se está optimizando
+    if (rawFile.size > 2 * 1024 * 1024) {
+      this.loadingService.show('radar', 'Comprimiendo foto (>2MB)...');
+    } else {
+      this.loadingService.show('radar', 'Subiendo foto...');
+    }
+
+    const result = await ImageCompressor.compressImage(rawFile, 1200, 0.85);
+
+    if (!result.valid || !result.file) {
+      this.loadingService.hide();
+      this.showToast(result.error || 'Archivo inválido.', 'error');
+      return;
+    }
+
     this.loadingService.show('radar', 'Subiendo foto...');
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', result.file);
     this.http.put(`${environment.apiUrl}/usuarios/${this.selectedClient.id}/foto-perfil`, formData, { responseType: 'text' }).subscribe({
       next: () => {
         this.loadingService.hide();
-        this.showToast('Foto de perfil actualizada');
+        this.showToast('Foto de perfil actualizada exitosamente');
         this.loadMyProfile();
       },
       error: (err) => {
         this.loadingService.hide();
-        this.showToast('Error al subir foto');
+        this.showToast('Error al subir foto al servidor', 'error');
         console.error(err);
       }
     });
   }
 
-  uploadDocumento(event: any, type: 'frente' | 'reverso') {
-    const file = event.target.files[0];
-    if (!file) return;
+  async uploadDocumento(event: any, type: 'frente' | 'reverso') {
+    const rawFile = event.target.files[0];
+    if (!rawFile) return;
+
+    // Reset input value para permitir volver a seleccionar
+    event.target.value = '';
+
+    // Mensaje dinámico: Si pesa más de 2MB, se avisa que se está optimizando
+    if (rawFile.size > 2 * 1024 * 1024) {
+      this.loadingService.show('radar', 'Comprimiendo documento (>2MB)...');
+    } else {
+      this.loadingService.show('radar', 'Subiendo documento...');
+    }
+
+    // Para credencial INE se usa 1600px para preservar toda la nitidez de texto y números
+    const result = await ImageCompressor.compressImage(rawFile, 1600, 0.85);
+
+    if (!result.valid || !result.file) {
+      this.loadingService.hide();
+      this.showToast(result.error || 'Archivo inválido. Debe ser una imagen menor a 2 MB.', 'error');
+      return;
+    }
+
     this.loadingService.show('radar', 'Subiendo documento...');
     const formData = new FormData();
-    if (type === 'frente') formData.append('fileFrente', file);
-    if (type === 'reverso') formData.append('fileReverso', file);
+    if (type === 'frente') formData.append('fileFrente', result.file);
+    if (type === 'reverso') formData.append('fileReverso', result.file);
     this.http.put(`${environment.apiUrl}/usuarios/${this.selectedClient.id}/documentos`, formData, { responseType: 'text' }).subscribe({
       next: () => {
         this.loadingService.hide();
-        this.showToast('Documento actualizado');
+        this.showToast('Documento actualizado correctamente');
         this.loadMyProfile();
       },
       error: (err) => {
         this.loadingService.hide();
-        this.showToast('Error al subir documento');
+        this.showToast('Error al subir documento al servidor', 'error');
         console.error(err);
       }
     });

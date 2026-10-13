@@ -12,18 +12,15 @@ export class TradingSocketService {
   
   // Nuevos EventSources
   private balanceEventSource: EventSource | null = null;
-  private marketEventSource: EventSource | null = null;
   private positionsEventSource: EventSource | null = null;
 
-  // Señales reactivas Fase 1 y 2 y 3
+  // Señales reactivas Fase 1 y 3
   public balanceState: WritableSignal<BalanceDto | null> = signal(null);
-  public marketState: WritableSignal<PriceDto[] | null> = signal(null);
   public positionsState: WritableSignal<PositionUpdateDto[] | null> = signal(null);
 
   // Estado de la conexión
   public isConnected: WritableSignal<boolean> = signal(false);
   public isBalanceConnected: WritableSignal<boolean> = signal(false);
-  public isMarketConnected: WritableSignal<boolean> = signal(false);
   public isPositionsConnected: WritableSignal<boolean> = signal(false);
 
   // Señal específica para el activo seleccionado en la gráfica
@@ -143,44 +140,6 @@ export class TradingSocketService {
       this.balanceEventSource = null;
     }
     this.zone.run(() => this.isBalanceConnected.set(false));
-  }
-
-  // ============================================
-  // FASE 1: CONEXIÓN EXCLUSIVA DE MERCADOS
-  // ============================================
-  public connectMarket(): void {
-    if (this.marketEventSource) {
-      this.disconnectMarket();
-    }
-
-    const token = sessionStorage.getItem('jwt_token') || '';
-    const url = `${environment.apiUrl}/stream/mercados?token=${token}`;
-    this.marketEventSource = new EventSource(url);
-
-    this.marketEventSource.onopen = () => {
-      this.zone.run(() => this.isMarketConnected.set(true));
-    };
-
-    this.marketEventSource.addEventListener('market-update', (event: MessageEvent) => {
-      this.zone.run(() => {
-        const data: PriceDto[] = JSON.parse(event.data);
-        this.marketState.set(data);
-      });
-    });
-
-    this.marketEventSource.onerror = (error) => {
-      this.zone.run(() => this.isMarketConnected.set(false));
-      this.disconnectMarket();
-      setTimeout(() => this.connectMarket(), 5000);
-    };
-  }
-
-  public disconnectMarket(): void {
-    if (this.marketEventSource) {
-      this.marketEventSource.close();
-      this.marketEventSource = null;
-    }
-    this.zone.run(() => this.isMarketConnected.set(false));
   }
 
   // ============================================

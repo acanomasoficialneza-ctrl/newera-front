@@ -61,7 +61,7 @@
             </button>
             <label class="p-2 bg-newera-primary/40 hover:bg-newera-primary/60 rounded-full text-white cursor-pointer transition-colors" title="Actualizar Foto">
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-              <input type="file" class="hidden" accept="image/*" (change)="uploadFotoPerfil($event)">
+              <input type="file" class="hidden" accept="image/jpeg,image/png,image/webp" (change)="uploadFotoPerfil($event)">
             </label>
           </div>
       </div>
@@ -74,7 +74,7 @@
         <label class="flex items-center justify-center gap-2 px-3 py-1.5 bg-newera-primary/40 rounded-full text-white text-[10px] font-bold uppercase tracking-widest cursor-pointer">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
           Subir
-          <input type="file" class="hidden" accept="image/*" (change)="uploadFotoPerfil($event)">
+          <input type="file" class="hidden" accept="image/jpeg,image/png,image/webp" (change)="uploadFotoPerfil($event)">
         </label>
       </div>
       <h4 class="text-xs font-bold text-white/50 uppercase tracking-widest mt-3">Foto de Perfil</h4>
@@ -165,7 +165,7 @@
                   </button>
                   <label class="p-3 bg-newera-primary/40 hover:bg-newera-primary/60 rounded-full text-white cursor-pointer transition-colors" title="Actualizar Frente">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    <input type="file" class="hidden" accept="image/*" (change)="uploadDocumento($event, 'frente')">
+                    <input type="file" class="hidden" accept="image/jpeg,image/png,image/webp" (change)="uploadDocumento($event, 'frente')">
                   </label>
                 </div>
                 <span class="text-[10px] text-white/70 font-bold tracking-widest uppercase">Actualizar Frente</span>
@@ -180,7 +180,7 @@
             <label class="flex items-center justify-center gap-2 px-3 py-1.5 bg-newera-primary/40 rounded-full text-white text-[10px] font-bold uppercase tracking-widest cursor-pointer">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
               Subir Frente
-              <input type="file" class="hidden" accept="image/*" (change)="uploadDocumento($event, 'frente')">
+              <input type="file" class="hidden" accept="image/jpeg,image/png,image/webp" (change)="uploadDocumento($event, 'frente')">
             </label>
           </div>
         </div>
@@ -202,7 +202,7 @@
                   </button>
                   <label class="p-3 bg-newera-primary/40 hover:bg-newera-primary/60 rounded-full text-white cursor-pointer transition-colors" title="Actualizar Reverso">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    <input type="file" class="hidden" accept="image/*" (change)="uploadDocumento($event, 'reverso')">
+                    <input type="file" class="hidden" accept="image/jpeg,image/png,image/webp" (change)="uploadDocumento($event, 'reverso')">
                   </label>
                 </div>
                 <span class="text-[10px] text-white/70 font-bold tracking-widest uppercase">Actualizar Reverso</span>
@@ -217,7 +217,7 @@
             <label class="flex items-center justify-center gap-2 px-3 py-1.5 bg-newera-primary/40 rounded-full text-white text-[10px] font-bold uppercase tracking-widest cursor-pointer">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
               Subir Reverso
-              <input type="file" class="hidden" accept="image/*" (change)="uploadDocumento($event, 'reverso')">
+              <input type="file" class="hidden" accept="image/jpeg,image/png,image/webp" (change)="uploadDocumento($event, 'reverso')">
             </label>
           </div>
         </div>

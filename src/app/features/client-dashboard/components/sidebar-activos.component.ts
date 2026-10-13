@@ -1,6 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MarketDataService, PriceData } from '../../../core/services/market-data.service';
+import { EodMarketSocketService } from '../../../core/services/eod-market-socket.service';
 
 @Component({
   selector: 'app-sidebar-activos',
@@ -33,7 +34,25 @@ import { MarketDataService, PriceData } from '../../../core/services/market-data
 
           <!-- Accordion Body -->
           <div *ngIf="expandedCategory() === category" class="mt-1 space-y-1 overflow-hidden animate-fade-in-down">
-            <div *ngFor="let price of getPricesByCategory(category)" 
+            
+            <!-- Banner Informativo cuando el mercado de Acciones está cerrado -->
+            <div *ngIf="category === 'ACCIONES' && !isStockMarketOpen()" 
+                 class="mx-1 mb-2 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/25 text-amber-200 flex items-start gap-2.5 shadow-sm">
+              <svg class="w-4 h-4 shrink-0 text-amber-400 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div class="flex-1">
+                <div class="flex items-center justify-between">
+                  <span class="font-bold text-[10px] uppercase tracking-wider text-amber-300">Mercado Cerrado</span>
+                  <span class="text-[9px] font-mono text-white/50">{{ nyTime() }}</span>
+                </div>
+                <p class="text-[10px] text-amber-200/80 leading-snug mt-0.5">
+                  El mercado bursátil está cerrado. El valor mostrado es el <strong>último de cierre del día</strong>. Horario Wall Street: Lun a Vie 9:30 - 16:00 ET.
+                </p>
+              </div>
+            </div>
+
+            <div *ngFor="let price of getPricesByCategory(category); trackBy: trackBySymbol" 
                  (click)="selectAsset(price.simbolo)"
                  [class.bg-white_10]="selected() === price.simbolo"
                  [class.border-newera-primary]="selected() === price.simbolo"
@@ -45,32 +64,54 @@ import { MarketDataService, PriceData } from '../../../core/services/market-data
 
               <div class="flex items-center gap-3 z-10">
                 <div>
-                  <p class="font-bold text-sm text-white group-hover:text-newera-primary transition-colors leading-tight">{{ price.simbolo }}</p>
+                  <p class="font-bold text-sm text-white group-hover:text-newera-primary transition-colors leading-tight flex items-center gap-1.5">
+                    {{ price.simbolo }}
+                    <!-- Micro indicador de actividad en vivo -->
+                    <span *ngIf="price.flash === 'up'" class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span *ngIf="price.flash === 'down'" class="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping"></span>
+                  </p>
                 </div>
               </div>
               
               <div class="text-right z-10 flex flex-col items-end gap-1.5">
                 
-                <!-- Recuadro de Venta / Compra -->
-                <div class="flex items-center bg-black/40 border border-white/10 rounded overflow-hidden shadow-sm">
-                  <!-- Venta (Bid) en Rojo -->
-                  <div class="px-2 py-1 flex items-center gap-1 border-r border-white/10 bg-newera-loss/5" title="Venta (Bid)">
+                <!-- Recuadro de Venta / Compra con destello reactivo -->
+                <div class="flex items-center bg-black/40 border border-white/10 rounded overflow-hidden shadow-sm transition-all duration-300"
+                     [ngClass]="{
+                       'ring-1 ring-emerald-500/60 shadow-[0_0_10px_rgba(16,185,129,0.3)]': price.flash === 'up',
+                       'ring-1 ring-rose-500/60 shadow-[0_0_10px_rgba(244,63,94,0.3)]': price.flash === 'down'
+                     }">
+                  <!-- Venta (Bid) -->
+                  <div class="px-2 py-1 flex items-center gap-1 border-r border-white/10 transition-colors duration-300" 
+                       [ngClass]="price.flash === 'down' ? 'bg-rose-500/25 text-rose-300' : 'bg-newera-loss/5'"
+                       title="Venta (Bid)">
                      <span class="text-[8px] text-white/40 uppercase font-bold">V</span>
-                     <span class="font-mono text-[10px] font-bold text-newera-loss">{{ (price.precioVenta || price.precioActual) | number:'1.2-6' }}</span>
+                     <span class="font-mono text-[10px] font-bold text-newera-loss transition-colors duration-300"
+                           [ngClass]="price.flash === 'down' ? 'text-rose-400 font-extrabold' : ''">
+                       {{ (price.precioVenta || price.precioActual) | number:'1.2-6' }}
+                     </span>
                   </div>
-                  <!-- Compra (Ask) en Verde -->
-                  <div class="px-2 py-1 flex items-center gap-1 bg-newera-profit/5" title="Compra (Ask)">
+                  <!-- Compra (Ask) -->
+                  <div class="px-2 py-1 flex items-center gap-1 transition-colors duration-300" 
+                       [ngClass]="price.flash === 'up' ? 'bg-emerald-500/25 text-emerald-300' : 'bg-newera-profit/5'"
+                       title="Compra (Ask)">
                      <span class="text-[8px] text-white/40 uppercase font-bold">C</span>
-                     <span class="font-mono text-[10px] font-bold text-newera-profit">{{ (price.precioCompra || price.precioActual) | number:'1.2-6' }}</span>
+                     <span class="font-mono text-[10px] font-bold text-newera-profit transition-colors duration-300"
+                           [ngClass]="price.flash === 'up' ? 'text-emerald-400 font-extrabold' : ''">
+                       {{ (price.precioCompra || price.precioActual) | number:'1.2-6' }}
+                     </span>
                   </div>
                 </div>
 
-                <!-- Variante -->
-                <p class="font-mono text-[10px] font-bold flex items-center justify-end gap-1" 
+                <!-- Variante con flecha de tick dinámico -->
+                <p class="font-mono text-[10px] font-bold flex items-center justify-end gap-1 transition-colors" 
                    [class.text-newera-profit]="price.variacionPorcentaje >= 0"
                    [class.text-newera-loss]="price.variacionPorcentaje < 0">
-                   <span *ngIf="price.variacionPorcentaje >= 0">▲</span>
-                   <span *ngIf="price.variacionPorcentaje < 0">▼</span>
+                   <span *ngIf="price.changeDirection === 'up'" class="text-emerald-400 text-xs transition-transform duration-200">▲</span>
+                   <span *ngIf="price.changeDirection === 'down'" class="text-rose-400 text-xs transition-transform duration-200">▼</span>
+                   <span *ngIf="!price.changeDirection || price.changeDirection === 'same'">
+                     {{ price.variacionPorcentaje >= 0 ? '▲' : '▼' }}
+                   </span>
                    {{ price.variacionPorcentaje > 0 ? '+' : '' }}{{ price.variacionPorcentaje }}%
                 </p>
               </div>
@@ -95,25 +136,39 @@ export class SidebarActivosComponent {
   
   prices = computed(() => this.marketDataService.marketPrices());
   selected = computed(() => this.marketDataService.selectedAsset());
+  isStockMarketOpen = computed(() => this.marketDataService.stockMarketOpen());
+  nyTime = computed(() => this.marketDataService.getNyTimeString());
   
   categories = ['CRIPTO', 'FONDOS', 'DIVISA', 'MATERIAS', 'ACCIONES'];
   expandedCategory = signal<string>('CRIPTO');
 
-  constructor(private marketDataService: MarketDataService) {}
+  constructor(
+    private marketDataService: MarketDataService,
+    private eodMarketSocketService: EodMarketSocketService
+  ) {}
 
   selectAsset(simbolo: string) {
     this.marketDataService.setSelectedAsset(simbolo);
+    this.eodMarketSocketService.onAssetSelected(simbolo);
   }
 
   toggleCategory(category: string) {
     if (this.expandedCategory() === category) {
       this.expandedCategory.set(''); // Collapse if already open
+      this.eodMarketSocketService.setFocusCategory('');
     } else {
       this.expandedCategory.set(category);
+      this.eodMarketSocketService.setFocusCategory(category);
     }
   }
 
   getPricesByCategory(category: string): PriceData[] {
     return this.prices().filter(p => p.categoria === category && ((p.precioVenta || 0) > 0 || (p.precioCompra || 0) > 0 || (p.precioActual || 0) > 0));
   }
+
+  trackBySymbol(index: number, item: PriceData): string {
+    return item.simbolo;
+  }
 }
+
+

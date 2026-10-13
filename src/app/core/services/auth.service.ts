@@ -2,6 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { EodMarketSocketService } from './eod-market-socket.service';
 
 export type UserRole = 'CLIENTE' | 'EJECUTIVO' | 'GERENTE' | 'DIRECTOR' | 'ADMIN' | null;
 
@@ -25,7 +26,10 @@ export class AuthService {
   
   public currentUser = signal<CurrentUser | null>(null);
 
-  constructor(private http: HttpClient) {
+  constructor(
+    private http: HttpClient,
+    private eodSocketService: EodMarketSocketService
+  ) {
     // Al iniciar el servicio, intentamos restaurar la sesión desde el LocalStorage
     this.restoreSession();
   }
@@ -41,25 +45,31 @@ export class AuthService {
           if (response && response.token) {
             sessionStorage.setItem('jwt_token', response.token);
             
-            // Decodificamos el nombre desde el JWT (si el backend lo enviara)
-            // o usamos un valor default según el rol por ahora.
             let name = 'Usuario';
             if (response.rol === 'DIRECTOR') name = 'Director General';
             if (response.rol === 'GERENTE' || response.rol === 'EJECUTIVO' || response.rol === 'ADMIN') name = 'Mesa de Control';
             if (response.rol === 'CLIENTE') name = 'Trader VIP';
 
             this.currentUser.set({
-              id: response.idUsuario || 0, // Fallback if backend doesn't send it in login root
+              id: response.idUsuario || 0,
               email: correo,
               role: response.rol,
               name: name
             });
+
+            // PASO 2: Conectar mercados en vivo estilo Alpha SOLO PARA CLIENTES
+            if (response.rol === 'CLIENTE') {
+              this.eodSocketService.connectAll();
+            }
           }
         })
       );
   }
 
   public logout(): void {
+    // Al cerrar sesión, desconectar sockets de mercado de inmediato
+    this.eodSocketService.disconnectAll();
+
     sessionStorage.removeItem('jwt_token');
     sessionStorage.removeItem('authUser');
     this.currentUser.set(null);
@@ -76,7 +86,7 @@ export class AuthService {
     const token = sessionStorage.getItem('jwt_token');
     if (token) {
       try {
-        // Obtenemos el payload del JWT (parte del medio)
+        // Obtenemos el payload del JWT
         const payload = JSON.parse(atob(token.split('.')[1]));
         
         // Verificamos expiración
@@ -93,10 +103,15 @@ export class AuthService {
 
         this.currentUser.set({
           id: payload.idUsuario,
-          email: payload.sub || 'usuario@newera', // En JWT usualmente es "sub"
+          email: payload.sub || 'usuario@newera',
           role: payload.rol, 
           name: name
         });
+
+        // PASO 2: Si el usuario restaurado es CLIENTE, reconectar sockets estilo Alpha
+        if (payload.rol === 'CLIENTE') {
+          this.eodSocketService.connectAll();
+        }
       } catch(e) {
         // Token inválido o malformado
         this.logout();
@@ -104,8 +119,6 @@ export class AuthService {
     }
   }
 
-  // Método antiguo ficticio mantenido solo si alguien más lo usara, 
-  // pero ya no debería usarse en el login.component.ts.
   public loginFicticio(email: string): boolean {
     return false; 
   }

@@ -11,7 +11,14 @@ import { PriceDto } from '../../../core/models/models';
   template: `
     <div class="glass-panel w-full h-full flex flex-col p-4">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold text-white tracking-wider">{{ selectedAsset }}</h2>
+        <div class="flex items-center gap-3">
+          <h2 class="text-xl font-bold text-white tracking-wider">{{ selectedAsset }}</h2>
+          <span *ngIf="isAccionesAndClosed" 
+                class="text-[10px] bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2.5 py-0.5 rounded-full font-mono font-bold tracking-wider flex items-center gap-1.5 animate-in fade-in">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+            MERCADO CERRADO • ÚLTIMO CIERRE
+          </span>
+        </div>
         <div class="flex gap-2">
           <span class="text-xs text-newera-text-muted">1m</span>
           <span class="text-xs text-newera-text-muted">5m</span>
@@ -31,6 +38,11 @@ export class ChartTradingComponent implements AfterViewInit, OnDestroy {
   
   public selectedAsset: string = 'BTC/USD';
   private currentAsset: string = '';
+
+  get isAccionesAndClosed(): boolean {
+    const asset = this.marketDataService.marketPrices().find(p => p.simbolo === this.selectedAsset);
+    return asset?.categoria === 'ACCIONES' && !this.marketDataService.stockMarketOpen();
+  }
 
   constructor(private marketDataService: MarketDataService) {
     // Escuchamos los cambios en los precios para actualizar la gráfica del activo seleccionado

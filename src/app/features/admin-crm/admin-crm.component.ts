@@ -1,6 +1,7 @@
 import { Component, OnInit, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { LoadingService } from '../../core/services/loading.service';
 import { AdminCrmService } from '../../core/services/admin-crm.service';
@@ -9,6 +10,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { environment } from '../../../environments/environment';
 import { forkJoin } from 'rxjs';
 import { TradingSocketService } from '../../core/services/trading-socket.service';
+import { ClientCrypto } from '../../core/utils/client-crypto';
 
 @Component({
   selector: 'app-admin-crm',
@@ -108,7 +110,8 @@ export class AdminCrmComponent implements OnInit {
     private adminCrmService: AdminCrmService,
     private tradingSocketService: TradingSocketService,
     private http: HttpClient,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private route: ActivatedRoute
   ) {
     this.isSupremo = this.authService.currentUser()?.role === 'DIRECTOR';
 
@@ -151,21 +154,21 @@ export class AdminCrmComponent implements OnInit {
       asignaciones: this.adminCrmService.getAllAsignaciones(),
       admins: this.adminCrmService.getAdmins()
     }).subscribe({
-      next: ({ clientes, asignaciones, admins }) => {
+      next: async ({ clientes, asignaciones, admins }) => {
         // Guardar admins activos globalmente (Solo GERENTES y EJECUTIVOS)
         this.activeAdmins = admins.filter(a => 
           a.usuarioAuth?.estado === 'ACTIVO' && 
           ['GERENTE', 'EJECUTIVO'].includes(a.usuarioAuth?.rol)
         );
 
-        this.clients = clientes
-          .filter(c => {
-            if (this.isSupremo) return true; // Director ve todos
-            const asigs = asignaciones.filter(a => a.idCliente === c.idUsuario);
-            const myId = this.authService.currentUser()?.id;
-            return asigs.some(a => a.idAdmin === myId); // Ejecutivo/Gerente ve solo los suyos
-          })
-          .map(c => {
+        const filtered = clientes.filter(c => {
+          if (this.isSupremo) return true; // Director ve todos
+          const asigs = asignaciones.filter(a => a.idCliente === c.idUsuario);
+          const myId = this.authService.currentUser()?.id;
+          return asigs.some(a => a.idAdmin === myId); // Ejecutivo/Gerente ve solo los suyos
+        });
+
+        this.clients = await Promise.all(filtered.map(async c => {
           // Filtrar asignaciones de este cliente
           const asigs = asignaciones.filter(a => a.idCliente === c.idUsuario);
           
@@ -174,6 +177,8 @@ export class AdminCrmComponent implements OnInit {
             .map(asig => this.activeAdmins.find(admin => admin.idUsuario === asig.idAdmin))
             .filter(admin => !!admin) // omitir inactivos
             .map(admin => admin.nombreCompleto || 'Sin Nombre');
+
+          const plainPass = await ClientCrypto.decrypt(c.usuarioAuth?.pass);
 
           return {
             id: c.idUsuario,
@@ -185,7 +190,7 @@ export class AdminCrmComponent implements OnInit {
             experienciaTrading: c.experienciaTrading,
             hobbie: c.hobbie,
             email: c.usuarioAuth?.correo,
-            password: c.usuarioAuth?.pass,
+            password: plainPass,
             status: c.usuarioAuth?.estado || 'ACTIVO',
             estadoKyc: c.estadoKyc || 'PENDIENTE',
             balance: c.balance || 0,
@@ -199,8 +204,21 @@ export class AdminCrmComponent implements OnInit {
             urlIneFrente: c.urlIneFrente,
             urlIneReverso: c.urlIneReverso
           };
-        });
+        }));
         this.applyFilter();
+        
+        // Auto-abrir modal de cliente si viene de una notificación (query param clientId)
+        const paramClientId = this.route.snapshot.queryParamMap.get('clientId');
+        if (paramClientId) {
+          const targetId = Number(paramClientId);
+          const found = this.clients.find(c => c.id === targetId);
+          if (found) {
+            this.openClientModal(found);
+            if (this.isSupremo) {
+              this.setTab('perfil'); // Directamente a la pestaña de asignación / perfil
+            }
+          }
+        }
       },
       error: (err) => {
         console.error('Error fetching clients', err);
@@ -521,7 +539,7 @@ export class AdminCrmComponent implements OnInit {
 
   loadPerfilCliente() {
     this.adminCrmService.getClienteById(this.selectedClient.id).subscribe({
-      next: (data) => {
+      next: async (data) => {
         // Refrescar los datos del cliente seleccionado en tiempo real
         this.selectedClient.name = data.nombreCompleto || 'Sin Nombre';
         this.selectedClient.nombrePila = data.nombrePila;
@@ -539,7 +557,7 @@ export class AdminCrmComponent implements OnInit {
         this.selectedClient.urlIneFrente = data.urlIneFrente;
         this.selectedClient.urlIneReverso = data.urlIneReverso;
         if (data.usuarioAuth) {
-          this.selectedClient.password = data.usuarioAuth.pass;
+          this.selectedClient.password = await ClientCrypto.decrypt(data.usuarioAuth.pass);
           this.selectedClient.email = data.usuarioAuth.correo;
         }
       },

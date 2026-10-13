@@ -81,10 +81,8 @@ export class ClientDashboardComponent implements OnInit, OnDestroy {
   constructor(private socketService: TradingSocketService) {}
 
   ngOnInit() {
-    this.socketService.connectMarket();
+    // Los mercados en vivo ahora se gestionan globalmente estilo Alpha por EodMarketSocketService
   }
 
-  ngOnDestroy() {
-    this.socketService.disconnectMarket();
-  }
+  ngOnDestroy() {}
 }

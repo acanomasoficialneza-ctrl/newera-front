@@ -5,6 +5,7 @@ import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { LoadingService } from '../../core/services/loading.service';
 import { AdminStaffService, AdminUser, AdminPayload } from '../../core/services/admin-staff.service';
+import { ClientCrypto } from '../../core/utils/client-crypto';
 
 @Component({
   selector: 'app-admin-staff',
@@ -56,17 +57,25 @@ export class AdminStaffComponent implements OnInit {
 
   loadAdmins() {
     this.adminStaffService.getAdmins().subscribe({
-      next: (data) => {
-        this.admins = data.map(item => ({
-          idUsuario: item.idUsuario,
-          correo: item.usuarioAuth?.correo || 'Sin correo',
-          pass: item.usuarioAuth?.pass || '',
-          nombre: item.nombreCompleto || 'Sin Nombre',
-          telefono: item.telefono || '',
-          departamento: item.departamento || 'Sin asignar',
-          rol: item.usuarioAuth?.rol || 'EJECUTIVO',
-          estado: item.usuarioAuth?.estado || 'ACTIVO',
-          fechaIngreso: item.fechaRegistro || 'N/A'
+      next: async (data) => {
+        this.admins = await Promise.all(data.map(async item => {
+          let plainPass = item.usuarioAuth?.pass || '';
+          if (plainPass.startsWith('$2a$')) {
+            plainPass = '';
+          } else {
+            plainPass = await ClientCrypto.decrypt(plainPass);
+          }
+          return {
+            idUsuario: item.idUsuario,
+            correo: item.usuarioAuth?.correo || 'Sin correo',
+            pass: plainPass,
+            nombre: item.nombreCompleto || 'Sin Nombre',
+            telefono: item.telefono || '',
+            departamento: item.departamento || 'Sin asignar',
+            rol: item.usuarioAuth?.rol || 'EJECUTIVO',
+            estado: item.usuarioAuth?.estado || 'ACTIVO',
+            fechaIngreso: item.fechaRegistro || 'N/A'
+          };
         }));
         this.applyFilter();
       },
@@ -209,8 +218,12 @@ export class AdminStaffComponent implements OnInit {
       this.showToast('Selecciona un rol válido.', 'error');
       return;
     }
-    if (!this.selectedAdmin.pass || this.selectedAdmin.pass.trim().length < 6) {
+    if (!this.isEditMode && (!this.selectedAdmin.pass || this.selectedAdmin.pass.trim().length < 6)) {
       this.showToast('La contraseña es obligatoria (mín. 6 caracteres).', 'error');
+      return;
+    }
+    if (this.isEditMode && this.selectedAdmin.pass && this.selectedAdmin.pass.trim().length > 0 && this.selectedAdmin.pass.trim().length < 6) {
+      this.showToast('La nueva contraseña debe tener mín. 6 caracteres.', 'error');
       return;
     }
     this.isConfirmOpen = true;
