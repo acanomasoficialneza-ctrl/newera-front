@@ -29,6 +29,7 @@ import { Subscription } from 'rxjs';
               <th class="px-4 py-4 whitespace-nowrap">Fecha Apertura</th>
               <th class="px-4 py-4 whitespace-nowrap">Activo</th>
               <th class="px-4 py-4 whitespace-nowrap">Tipo</th>
+              <th class="px-4 py-4 whitespace-nowrap text-right">Valor Unidad</th>
               <th class="px-4 py-4 whitespace-nowrap text-right">Inversión</th>
               <th class="px-4 py-4 whitespace-nowrap text-right">P&L Actual</th>
               <th class="px-4 py-4 whitespace-nowrap text-center rounded-tr-lg">Acción</th>
@@ -51,6 +52,11 @@ import { Subscription } from 'rxjs';
                       [ngClass]="pos.tipoCompra === 'COMPRA' || pos.tipoCompra === 'COMPRAR' ? 'bg-newera-profit/10 text-newera-profit border-newera-profit/20' : 'bg-newera-loss/10 text-newera-loss border-newera-loss/20'">
                   {{ pos.tipoCompra }}
                 </span>
+              </td>
+
+              <!-- VALOR UNIDAD -->
+              <td class="px-4 py-4 font-mono text-xs text-right text-white/80">
+                <span>$</span>{{ pos.valorUnidad | number:'1.2-6' }}
               </td>
               
               <!-- INVERSION -->
@@ -76,7 +82,7 @@ import { Subscription } from 'rxjs';
               </td>
             </tr>
             <tr *ngIf="displayedPositions().length === 0">
-              <td colspan="7" class="text-center py-12 text-white/40 text-sm">No hay posiciones activas</td>
+              <td colspan="8" class="text-center py-12 text-white/40 text-sm">No hay posiciones activas</td>
             </tr>
           </tbody>
         </table>
@@ -95,12 +101,19 @@ import { Subscription } from 'rxjs';
               </span>
             </div>
 
-            <div class="flex justify-between items-end border-t border-white/5 pt-3 mt-1">
+            <div class="grid grid-cols-2 gap-2 bg-white/5 rounded-lg p-2.5 border border-white/5 my-1">
+              <div>
+                <span class="text-[9px] text-white/40 uppercase tracking-widest block mb-1">Valor Unidad</span>
+                <span class="font-mono text-white text-xs font-semibold"><span>$</span>{{ pos.valorUnidad | number:'1.2-6' }}</span>
+              </div>
               <div>
                 <span class="text-[9px] text-white/40 uppercase tracking-widest block mb-1">Inversión</span>
                 <span class="font-mono text-white text-xs"><span>$</span>{{ pos.montoApuesta | number:'1.2-6' }}</span>
               </div>
-              <div class="text-right">
+            </div>
+
+            <div class="flex justify-between items-end border-t border-white/5 pt-2">
+              <div>
                 <span class="text-[9px] text-white/40 uppercase tracking-widest block mb-1">P&L Actual</span>
                 <span class="font-mono font-bold text-sm" [ngClass]="pos.gananciaPerdida >= 0 ? 'text-newera-profit' : 'text-newera-loss'">
                   {{ pos.gananciaPerdida >= 0 ? '+$' : '-$' }}{{ (pos.gananciaPerdida >= 0 ? pos.gananciaPerdida : (pos.gananciaPerdida * -1)) | number:'1.2-6' }}

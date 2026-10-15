@@ -79,6 +79,22 @@ export class AuthService {
     return this.currentUser() !== null || sessionStorage.getItem('jwt_token') !== null;
   }
 
+  public registrarClientePublico(payload: any): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/usuarios/registro/cliente`, payload);
+  }
+
+  public checkCorreo(correo: string): Observable<{exists: boolean}> {
+    return this.http.get<{exists: boolean}>(`${environment.apiUrl}/usuarios/check-correo?correo=${encodeURIComponent(correo)}`);
+  }
+
+  public checkTelefono(telefono: string): Observable<{exists: boolean}> {
+    return this.http.get<{exists: boolean}>(`${environment.apiUrl}/usuarios/check-telefono?telefono=${encodeURIComponent(telefono)}`);
+  }
+
+  public getDocumentosLegales(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/usuarios/documentos-legales`);
+  }
+
   /**
    * Intenta restaurar la sesión si el navegador es recargado
    */

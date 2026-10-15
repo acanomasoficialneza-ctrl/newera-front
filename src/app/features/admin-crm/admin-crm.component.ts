@@ -119,14 +119,13 @@ export class AdminCrmComponent implements OnInit {
     effect(() => {
       const positions = this.tradingSocketService.positionsState();
       if (positions && positions.length > 0 && this.selectedClient && this.filtroPosiciones === 'ABIERTO') {
-        // Optimización Visor: Cruce de IDs para actualizar SOLO el PnL
-        this.mockPositions = this.mockPositions.map(pos => {
+        // Optimización Visor: Actualizar SOLO el PnL in-place para no perder el foco de los inputs en edición
+        for (const pos of this.mockPositions) {
           const update = positions.find(s => s.id === pos.id);
-          if (update) {
-            return { ...pos, pnl: update.pnl };
+          if (update && pos.pnl !== update.pnl) {
+            pos.pnl = update.pnl;
           }
-          return pos;
-        });
+        }
       }
     });
 
@@ -281,6 +280,7 @@ export class AdminCrmComponent implements OnInit {
           status: a.estatusCompra,
           unidades: a.unidades || 1, 
           monto_usd: a.montoApuesta,
+          valor_unidad: a.valorUnidad || 0,
           variacion: a.variacion || 0,
           fecha_creacion: a.fechaCreacion
         }));
@@ -813,18 +813,30 @@ export class AdminCrmComponent implements OnInit {
     });
   }
 
+  trackByPosId(index: number, pos: any): any {
+    return pos?.id || index;
+  }
+
   guardarPosicionIndividual(pos: any) {
+    const nuevoValorUnidad = parseFloat(pos.valor_unidad);
+    if (isNaN(nuevoValorUnidad) || nuevoValorUnidad <= 0) {
+      this.showToast('Ingresa un valor unidad válido mayor a 0.', 'warning');
+      return;
+    }
     this.loadingService.show('radar', 'Guardando posición...');
-    const payload = { margen: pos.monto_usd, swap: 0 };
+    const payload = { 
+      valorUnidad: nuevoValorUnidad,
+      swap: 0 
+    };
     this.adminCrmService.actualizarPosicion(pos.id, payload).subscribe({
       next: () => {
         this.loadingService.hide();
-        this.showToast('Posición actualizada.');
+        this.showToast('Valor unidad actualizado exitosamente.');
       },
       error: (err) => {
         this.loadingService.hide();
         console.error(err);
-        this.showToast('Error al actualizar posición.');
+        this.showToast('Error al actualizar posición.', 'error');
       }
     });
   }

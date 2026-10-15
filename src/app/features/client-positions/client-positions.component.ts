@@ -55,6 +55,7 @@ import { AuthService } from '../../core/services/auth.service';
                 <th class="px-6 py-4 font-semibold">Fecha Apertura</th>
                 <th class="px-6 py-4 font-semibold">Activo</th>
                 <th class="px-6 py-4 font-semibold hidden md:table-cell">Tipo</th>
+                <th class="px-6 py-4 font-semibold text-right">Valor Unidad</th>
                 <th class="px-6 py-4 font-semibold text-right">Inversión</th>
                 <th class="px-6 py-4 font-semibold text-right">P&L Final</th>
                 <th class="px-6 py-4 font-semibold text-center">Estado</th>
@@ -87,6 +88,11 @@ import { AuthService } from '../../core/services/auth.service';
                     {{ pos.tipoCompra }}
                   </span>
                 </td>
+
+                <!-- VALOR UNIDAD -->
+                <td class="px-6 py-4 font-mono text-right text-white">
+                  <span>$</span>{{ pos.valorUnidad | number:'1.2-6' }}
+                </td>
                 
                 <!-- INVERSION -->
                 <td class="px-6 py-4 font-mono text-right text-newera-text-muted">
@@ -113,7 +119,7 @@ import { AuthService } from '../../core/services/auth.service';
                 </td>
               </tr>
               <tr *ngIf="displayedPositions().length === 0">
-                <td colspan="7" class="text-center py-12 text-white/40 text-sm">No hay posiciones para mostrar</td>
+                <td colspan="8" class="text-center py-12 text-white/40 text-sm">No hay posiciones para mostrar</td>
               </tr>
             </tbody>
           </table>
@@ -139,13 +145,23 @@ import { AuthService } from '../../core/services/auth.service';
                   {{ pos.estatusCompra !== 'CERRADO' ? 'ABIERTA' : 'CERRADA' }}
                 </div>
               </div>
+
+              <!-- Middle Row (Valores) -->
+              <div class="grid grid-cols-2 gap-2 bg-white/5 rounded-lg p-2.5 border border-white/5">
+                <div>
+                  <span class="text-[9px] text-newera-text-muted uppercase tracking-wider block mb-0.5">Valor Unidad</span>
+                  <span class="text-white font-mono text-xs font-semibold"><span>$</span>{{ pos.valorUnidad | number:'1.2-6' }}</span>
+                </div>
+                <div>
+                  <span class="text-[9px] text-newera-text-muted uppercase tracking-wider block mb-0.5">Inversión</span>
+                  <span class="text-newera-text-muted font-mono text-xs"><span>$</span>{{ pos.montoApuesta | number:'1.2-6' }}</span>
+                </div>
+              </div>
               
               <!-- Bottom Row -->
-              <div class="flex justify-between items-end border-t border-white/5 pt-3">
+              <div class="flex justify-between items-end border-t border-white/5 pt-2">
                 <div class="flex flex-col">
-                  <span class="text-[9px] text-newera-text-muted uppercase tracking-wider mb-0.5">Inversión</span>
-                  <span class="text-newera-text-muted font-mono text-sm"><span>$</span>{{ pos.montoApuesta | number:'1.2-6' }}</span>
-                  <span class="text-white/30 font-mono text-[9px] mt-0.5">ORD-{{ pos.idApuestaCliente }}</span>
+                  <span class="text-white/30 font-mono text-[9px]">ORD-{{ pos.idApuestaCliente }}</span>
                 </div>
                 <div class="flex flex-col items-end">
                   <span class="text-[9px] text-newera-text-muted uppercase tracking-wider mb-0.5">P&L Final</span>
