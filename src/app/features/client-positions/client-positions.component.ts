@@ -5,6 +5,7 @@ import { ApuestaService } from '../../core/services/apuesta.service';
 import { ApuestaCliente } from '../../core/models/models';
 import { LoadingService } from '../../core/services/loading.service';
 import { AuthService } from '../../core/services/auth.service';
+import { NotificationAlertService } from '../../core/services/notification-alert.service';
 
 @Component({
   selector: 'app-client-positions',
@@ -263,7 +264,8 @@ export class ClientPositionsComponent implements OnInit {
     private socketService: TradingSocketService,
     private apuestaService: ApuestaService,
     private loadingService: LoadingService,
-    private authService: AuthService
+    private authService: AuthService,
+    private alertService: NotificationAlertService
   ) {}
 
   ngOnInit() {
@@ -335,6 +337,11 @@ export class ClientPositionsComponent implements OnInit {
         setTimeout(() => {
           this.loadingService.hide();
           this.showToast(`Posición ORD-${id} cerrada con éxito`);
+          this.alertService.notify({
+            title: 'Posición Cerrada',
+            message: `Posición ORD-${id} liquidada con éxito.`,
+            type: 'info'
+          });
           this.cargarAbiertas();
           this.cargarCerradas();
         }, 1500); // Simulando el tiempo de espera
@@ -342,6 +349,11 @@ export class ClientPositionsComponent implements OnInit {
       error: (err: any) => {
         this.loadingService.hide();
         console.error("Error al cerrar posición", err);
+        this.alertService.notify({
+          title: 'Error al cerrar posición',
+          message: `No se pudo cerrar la orden ORD-${id}`,
+          type: 'error'
+        });
       }
     });
   }

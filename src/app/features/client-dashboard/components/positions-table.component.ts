@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TradingSocketService } from '../../../core/services/trading-socket.service';
 import { ApuestaService } from '../../../core/services/apuesta.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationAlertService } from '../../../core/services/notification-alert.service';
 import { ApuestaCliente } from '../../../core/models/models';
 import { Subscription } from 'rxjs';
 
@@ -195,7 +196,8 @@ export class PositionsTableComponent implements OnInit, OnDestroy {
   constructor(
     private socketService: TradingSocketService,
     private apuestaService: ApuestaService,
-    private authService: AuthService
+    private authService: AuthService,
+    private alertService: NotificationAlertService
   ) {
     // Escuchar actualizaciones en vivo desde el socket
     effect(() => {
@@ -270,10 +272,22 @@ export class PositionsTableComponent implements OnInit, OnDestroy {
       next: () => {
         this.showToast('Posición cerrada correctamente');
         this.cargarPosiciones();
+
+        this.alertService.notify({
+          title: 'Posición Cerrada',
+          message: 'La orden ha sido liquidada exitosamente.',
+          type: 'info'
+        });
       },
       error: (err) => {
         console.error(err);
         this.showToast('Error al cerrar posición');
+
+        this.alertService.notify({
+          title: 'Error al cerrar posición',
+          message: 'No se pudo liquidar la orden.',
+          type: 'error'
+        });
       }
     });
   }

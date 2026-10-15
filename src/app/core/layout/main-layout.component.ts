@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService, CurrentUser } from '../services/auth.service';
 import { NotificationService, AlertaCampanita } from '../services/notification.service';
+import { NotificationAlertService } from '../services/notification-alert.service';
 import { AdminCrmService } from '../services/admin-crm.service';
 import { TradingSocketService } from '../services/trading-socket.service';
 import { InactivityService } from '../services/inactivity.service';
@@ -133,9 +134,27 @@ import { environment } from '../../../environments/environment';
 
             <!-- Notifications Dropdown -->
             <div *ngIf="showNotifications" class="absolute top-full mt-2 right-2 sm:right-12 w-[92vw] sm:w-80 max-h-96 max-w-sm glass-panel bg-[#111111]/95 border border-white/10 rounded-xl shadow-2xl z-50 flex flex-col overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-              <div class="p-4 border-b border-white/10 flex justify-between items-center bg-black/20">
-                <h3 class="font-bold text-white text-sm">Notificaciones</h3>
-                <span class="text-[10px] bg-newera-primary/20 text-newera-primary px-2 py-0.5 rounded-full">{{ unreadCount() }} nuevas</span>
+              <div class="p-3 border-b border-white/10 flex justify-between items-center bg-black/40">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-bold text-white text-sm">Notificaciones</h3>
+                  <span class="text-[10px] bg-newera-primary/20 text-newera-primary px-2 py-0.5 rounded-full">{{ unreadCount() }}</span>
+                </div>
+                <!-- Control de Sonido -->
+                <div class="flex items-center gap-1.5">
+                  <button type="button" (click)="toggleSound($event)" 
+                          class="p-1.5 rounded-lg border text-xs transition-colors"
+                          [ngClass]="alertService.soundEnabled() ? 'bg-white/5 border-white/20 text-white hover:bg-white/10' : 'bg-red-500/10 border-red-500/30 text-red-400'"
+                          [title]="alertService.soundEnabled() ? 'Sonido activado (clic para silenciar)' : 'Sonido silenciado (clic para activar)'">
+                    <svg *ngIf="alertService.soundEnabled()" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/></svg>
+                    <svg *ngIf="!alertService.soundEnabled()" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Banner Permiso Notificaciones de Escritorio -->
+              <div *ngIf="alertService.permissionStatus() === 'default'" class="px-3 py-2 bg-newera-primary/10 border-b border-newera-primary/20 flex items-center justify-between gap-2">
+                <span class="text-[10px] text-white/80">¿Permitir avisos en escritorio/móvil?</span>
+                <button type="button" (click)="requestPermission($event)" class="text-[9px] font-bold bg-newera-primary text-white px-2 py-1 rounded hover:bg-blue-600 transition-colors">Activar</button>
               </div>
               <div class="flex-1 overflow-y-auto custom-scrollbar">
                 <div *ngIf="notifications().length === 0" class="p-6 text-center text-newera-text-muted text-xs">
@@ -242,6 +261,39 @@ import { environment } from '../../../environments/environment';
         </div>
       </div>
 
+      <!-- Floating Global Toast Banner (Sound + Alert Cues) -->
+      <div *ngIf="globalToast" class="fixed top-20 right-4 z-50 max-w-sm w-[92vw] sm:w-96 bg-[#141414]/95 border shadow-[0_10px_35px_rgba(0,0,0,0.5)] rounded-2xl p-4 backdrop-blur-xl animate-in slide-in-from-right-4 duration-300"
+           [ngClass]="{
+             'border-green-500/40 shadow-[0_10px_30px_rgba(34,197,94,0.2)]': globalToast.type === 'success',
+             'border-orange-500/40 shadow-[0_10px_30px_rgba(249,115,22,0.2)]': globalToast.type === 'warning',
+             'border-red-500/40 shadow-[0_10px_30px_rgba(239,68,68,0.2)]': globalToast.type === 'error',
+             'border-newera-primary/40 shadow-[0_10px_30px_rgba(37,99,235,0.2)]': !globalToast.type || globalToast.type === 'info'
+           }">
+        <div class="flex items-start gap-3">
+          <div class="p-2.5 rounded-xl shrink-0"
+               [ngClass]="{
+                 'bg-green-500/10 border border-green-500/30 text-green-400': globalToast.type === 'success',
+                 'bg-orange-500/10 border border-orange-500/30 text-orange-400': globalToast.type === 'warning',
+                 'bg-red-500/10 border border-red-500/30 text-red-400': globalToast.type === 'error',
+                 'bg-newera-primary/10 border border-newera-primary/30 text-newera-primary': !globalToast.type || globalToast.type === 'info'
+               }">
+            <svg *ngIf="globalToast.type === 'success'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <svg *ngIf="globalToast.type === 'warning'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+            <svg *ngIf="globalToast.type === 'error'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <svg *ngIf="!globalToast.type || globalToast.type === 'info'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between gap-2">
+              <h4 class="text-sm font-bold text-white tracking-wide truncate">{{ globalToast.title }}</h4>
+              <button (click)="dismissGlobalToast()" class="text-white/40 hover:text-white transition-colors p-1">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <p class="text-xs text-white/70 mt-1 leading-snug">{{ globalToast.message }}</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Realtime Toast Banner for New Client (Director Alert) -->
       <div *ngIf="activeClientToast" class="fixed top-20 right-4 z-50 max-w-sm w-[92vw] sm:w-96 bg-[#161616]/95 border border-orange-500/40 shadow-[0_10px_30px_rgba(249,115,22,0.25)] rounded-2xl p-4 backdrop-blur-xl animate-in slide-in-from-right-4 duration-300">
         <div class="flex items-start gap-3">
@@ -295,7 +347,10 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   unreadCount = computed(() => this.notifications().filter(n => !n.leido).length);
   activeClientToast: AlertaCampanita | null = null;
   private toastTimer: any = null;
-  private pollingInterval: any;
+
+  globalToast: { title: string; message: string; type: string } | null = null;
+  private globalToastTimer: any = null;
+  private toastSub: any = null;
 
   // Iconos SVG paths (Heroicons)
   private icons = {
@@ -341,6 +396,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     private authService: AuthService, 
     private router: Router, 
     private notificationService: NotificationService, 
+    public alertService: NotificationAlertService,
     private adminCrmService: AdminCrmService,
     private tradingSocketService: TradingSocketService,
     private inactivityService: InactivityService,
@@ -352,6 +408,16 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       this.router.navigate(['/auth/login']);
     } else {
       this.loadNotifications();
+
+      // Suscripción al stream global de toasts
+      this.toastSub = this.alertService.toastStream$.subscribe(toast => {
+        if (this.globalToastTimer) clearTimeout(this.globalToastTimer);
+        this.globalToast = toast;
+        this.globalToastTimer = setTimeout(() => {
+          this.globalToast = null;
+        }, 4500);
+      });
+
       if (this.currentUser()?.role === 'CLIENTE') {
         this.loadClientStats();
         // Conectar SSE de Balance en tiempo real
@@ -385,6 +451,9 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     if (this.notificationSubscription) {
       this.notificationSubscription.unsubscribe();
     }
+    if (this.toastSub) {
+      this.toastSub.unsubscribe();
+    }
     this.inactivityService.stopTracking();
     this.tradingSocketService.disconnectBalance();
   }
@@ -397,9 +466,21 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     if (user && user.id) {
       this.notificationSubscription = this.notificationService.getNotificaciones(user.id).subscribe({
         next: (data) => {
+          const nuevas = data.filter(n => !n.leido && !this.knownNotificationIds.has(n.idAlerta));
+          
+          // Disparar sonido y alerta solo para notificaciones entrantes en vivo (después de carga inicial)
+          if (nuevas.length > 0 && this.knownNotificationIds.size > 0) {
+            for (const n of nuevas) {
+              this.alertService.notify({
+                title: n.titulo,
+                message: n.mensaje,
+                type: n.tipo === 'WARNING' ? 'warning' : 'info'
+              });
+            }
+          }
+
           // Detectar nuevas notificaciones de tipo WARNING para DIRECTORES
           if (user.role === 'DIRECTOR') {
-            const nuevas = data.filter(n => !n.leido && !this.knownNotificationIds.has(n.idAlerta));
             const nuevoClienteAlerta = nuevas.find(n => n.tipo === 'WARNING');
             if (nuevoClienteAlerta) {
               this.showLiveToast(nuevoClienteAlerta);
@@ -412,6 +493,21 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
         error: (err) => console.error("Error cargando notificaciones", err)
       });
     }
+  }
+
+  toggleSound(event: Event) {
+    event.stopPropagation();
+    this.alertService.toggleSound();
+  }
+
+  requestPermission(event: Event) {
+    event.stopPropagation();
+    this.alertService.requestPermission();
+  }
+
+  dismissGlobalToast() {
+    if (this.globalToastTimer) clearTimeout(this.globalToastTimer);
+    this.globalToast = null;
   }
 
   showLiveToast(alerta: AlertaCampanita) {

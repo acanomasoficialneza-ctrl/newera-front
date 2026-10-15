@@ -11,6 +11,7 @@ import { environment } from '../../../environments/environment';
 import { forkJoin } from 'rxjs';
 import { TradingSocketService } from '../../core/services/trading-socket.service';
 import { ClientCrypto } from '../../core/utils/client-crypto';
+import { NotificationAlertService } from '../../core/services/notification-alert.service';
 
 @Component({
   selector: 'app-admin-crm',
@@ -111,7 +112,8 @@ export class AdminCrmComponent implements OnInit {
     private tradingSocketService: TradingSocketService,
     private http: HttpClient,
     private sanitizer: DomSanitizer,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private alertService: NotificationAlertService
   ) {
     this.isSupremo = this.authService.currentUser()?.role === 'DIRECTOR';
 
@@ -858,7 +860,13 @@ export class AdminCrmComponent implements OnInit {
     this.adminCrmService.cerrarPosicion(this.positionToClose, pnl, adminId).subscribe({
       next: () => {
         this.loadingService.hide();
-        this.showToast(`Posición ${this.positionToClose} cerrada exitosamente.`);
+        const closedId = this.positionToClose;
+        this.showToast(`Posición ${closedId} cerrada exitosamente.`);
+        this.alertService.notify({
+          title: 'Posición Cerrada (Admin)',
+          message: `Posición #${closedId} cerrada exitosamente.`,
+          type: 'info'
+        });
         this.positionToClose = null;
         this.loadApuestasCliente(); // Reload UI
         this.loadPerfilCliente(); // Reload Margen/Balance

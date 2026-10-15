@@ -5,6 +5,7 @@ import { MarketDataService, PriceData } from '../../../core/services/market-data
 import { ApuestaService } from '../../../core/services/apuesta.service';
 import { TradingSocketService } from '../../../core/services/trading-socket.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { NotificationAlertService } from '../../../core/services/notification-alert.service';
 
 @Component({
   selector: 'app-order-panel',
@@ -242,10 +243,11 @@ export class OrderPanelComponent {
     private marketDataService: MarketDataService,
     private apuestaService: ApuestaService,
     private tradingSocketService: TradingSocketService,
-    private authService: AuthService
+    private authService: AuthService,
+    private alertService: NotificationAlertService
   ) {
     effect(() => {
-      // Suscripcin reactiva
+      // Suscripción reactiva
       const price = this.currentPrice();
       // Mantenemos el monto input sincronizado con el balance real 
       this.monto = this.balanceActual();
@@ -270,7 +272,7 @@ export class OrderPanelComponent {
 
   ejecutarOrden() {
     if (this.unidades <= 0) {
-      this.mensajeError = "Debes ingresar unidades vǭlidas";
+      this.mensajeError = "Debes ingresar unidades válidas";
       return;
     }
     
@@ -298,18 +300,36 @@ export class OrderPanelComponent {
       next: (res: any) => {
         this.isProcessing = false;
         this.confirmado = false;
+        const op = this.operacion();
+        const asset = this.selectedAsset();
+        const uds = this.unidades;
+        const mg = this.margen;
         this.unidades = 0;
         this.recalcular();
         
-        this.mensajeExito = `¡Orden de ${this.operacion()} abierta exitosamente!`;
+        this.mensajeExito = `¡Orden de ${op} abierta exitosamente!`;
         setTimeout(() => this.mensajeExito = '', 4000);
         
+        // Sonido y alerta
+        this.alertService.notify({
+          title: `¡Orden de ${op} Ejecutada!`,
+          message: `${asset} (${uds} unidades) • Margen: $${mg.toFixed(2)} USD`,
+          type: 'success'
+        });
+
         // Notificar que se actualicen las posiciones abiertas en la tabla
         this.apuestaService.posicionesActualizadas.next();
       },
       error: (err: any) => {
         this.isProcessing = false;
-        this.mensajeError = err.error?.message || "Error al abrir posición";
+        const errMsg = err.error?.message || "Error al abrir posición";
+        this.mensajeError = errMsg;
+
+        this.alertService.notify({
+          title: 'Error al abrir posición',
+          message: errMsg,
+          type: 'error'
+        });
       }
     });
   }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CajaService, TransaccionCaja } from '../../core/services/caja.service';
+import { NotificationAlertService } from '../../core/services/notification-alert.service';
 
 interface RequestModel {
   id: number;
@@ -38,7 +39,10 @@ export class AdminCajaComponent implements OnInit {
   requests: RequestModel[] = [];
   approvedRequests: RequestModel[] = [];
 
-  constructor(private cajaService: CajaService) {}
+  constructor(
+    private cajaService: CajaService,
+    private alertService: NotificationAlertService
+  ) {}
 
   ngOnInit() {
     this.loadPendientes();
@@ -113,23 +117,41 @@ export class AdminCajaComponent implements OnInit {
     if(this.selectedRequest && this.confirmAction) {
        // SuperAdmin ID hardcoded to 1 for now
        const idAdmin = 1; 
+       const reqId = this.selectedRequest.id;
+       const reqType = this.selectedRequest.type;
+       const reqAmount = this.selectedRequest.amount;
 
        if (this.confirmAction === 'APROBAR') {
          this.cajaService.aprobarTransaccion(this.selectedRequest.id, idAdmin, this.confirmNote).subscribe({
            next: () => {
              this.showToast(`Petición APROBADA correctamente`);
+             this.alertService.notify({
+               title: 'Caja: Petición Aprobada',
+               message: `Petición #${reqId} (${reqType} por $${reqAmount} USD) aprobada con éxito.`,
+               type: 'success'
+             });
              if (this.activeTab === 'PENDIENTES') this.loadPendientes();
              else this.loadHistorial();
            },
            error: (err) => {
              console.error(err);
              this.showToast('Error al aprobar la transacción');
+             this.alertService.notify({
+               title: 'Error en Caja',
+               message: 'No se pudo aprobar la transacción.',
+               type: 'error'
+             });
            }
          });
        } else {
          this.cajaService.rechazarTransaccion(this.selectedRequest.id, idAdmin, this.confirmNote).subscribe({
            next: () => {
              this.showToast(`Petición RECHAZADA correctamente`);
+             this.alertService.notify({
+               title: 'Caja: Petición Rechazada',
+               message: `Petición #${reqId} ha sido rechazada.`,
+               type: 'warning'
+             });
              if (this.activeTab === 'PENDIENTES') this.loadPendientes();
              else this.loadHistorial();
            },
