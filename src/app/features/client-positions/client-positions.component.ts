@@ -6,11 +6,12 @@ import { ApuestaCliente } from '../../core/models/models';
 import { LoadingService } from '../../core/services/loading.service';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationAlertService } from '../../core/services/notification-alert.service';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-client-positions',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PaginationComponent],
   template: `
     <div class="w-full h-full flex flex-col pt-[80px] p-4 md:p-6 lg:p-8 overflow-hidden bg-black text-white relative">
       
@@ -187,6 +188,15 @@ import { NotificationAlertService } from '../../core/services/notification-alert
             </div>
           </div>
         </div>
+
+        <!-- Paginación Server-Side -->
+        <app-pagination 
+          [currentPage]="currentPage" 
+          [totalPages]="totalPages" 
+          [totalElements]="totalElements" 
+          [pageSize]="pageSize" 
+          (pageChange)="onPageChange($event)">
+        </app-pagination>
       </div>
 
       <!-- Modal de Confirmación -->
@@ -232,32 +242,19 @@ import { NotificationAlertService } from '../../core/services/notification-alert
 export class ClientPositionsComponent implements OnInit {
   
   filter = signal<'ABIERTAS' | 'CERRADAS'>('ABIERTAS');
-  posicionesAbiertas = signal<ApuestaCliente[]>([]);
-  posicionesCerradas = signal<ApuestaCliente[]>([]);
+  posiciones = signal<ApuestaCliente[]>([]);
   toastMessage: string | null = null;
+  
+  currentPage = 0;
+  totalPages = 1;
+  totalElements = 0;
+  pageSize = 10;
   
   isConfirmOpen = false;
   selectedPosId: number | null = null;
   
   displayedPositions = computed(() => {
-    const f = this.filter();
-    const abiertas = this.posicionesAbiertas();
-    const cerradas = this.posicionesCerradas();
-
-    let all: ApuestaCliente[] = [];
-
-    if (f === 'ABIERTAS') {
-      all = [...abiertas];
-    } else if (f === 'CERRADAS') {
-      all = [...cerradas];
-    }
-
-    // Ordenar por fecha descendente
-    return all.sort((a, b) => {
-      const d1 = new Date(a.fechaCreacion || 0).getTime();
-      const d2 = new Date(b.fechaCreacion || 0).getTime();
-      return d2 - d1;
-    });
+    return this.posiciones();
   });
 
   constructor(
@@ -269,42 +266,34 @@ export class ClientPositionsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.cargarAbiertas();
+    this.cargarPosiciones(0);
   }
 
-  cargarAbiertas() {
+  cargarPosiciones(page: number = 0) {
     const user = this.authService.currentUser();
-    console.log('cargarAbiertas, user is:', user);
     if (!user) return;
-    this.apuestaService.getApuestasByUsuario(user.id, 'ABIERTO').subscribe({
-      next: (data) => {
-        console.log('Posiciones ABIERTAS cargadas:', data);
-        this.posicionesAbiertas.set(data || []);
+    const estatus = this.filter() === 'ABIERTAS' ? 'ABIERTO' : 'CERRADO';
+    this.apuestaService.getApuestasPaginadas(user.id, estatus, page, this.pageSize).subscribe({
+      next: (res) => {
+        this.currentPage = res.page;
+        this.totalPages = res.totalPages;
+        this.totalElements = res.totalElements;
+        this.posiciones.set(res.content || []);
       },
-      error: (err) => console.error('Error fetching abiertas', err)
+      error: (err) => console.error('Error fetching posiciones paginadas', err)
     });
+  }
+
+  onPageChange(newPage: number) {
+    if (newPage >= 0 && newPage < this.totalPages) {
+      this.cargarPosiciones(newPage);
+    }
   }
 
   setFilter(f: 'ABIERTAS' | 'CERRADAS') {
     this.filter.set(f);
-    if (f === 'ABIERTAS') {
-      this.cargarAbiertas();
-    } else if (f === 'CERRADAS') {
-      this.cargarCerradas();
-    }
-  }
-
-  cargarCerradas() {
-    const user = this.authService.currentUser();
-    console.log('cargarCerradas, user is:', user);
-    if (!user) return;
-    this.apuestaService.getApuestasByUsuario(user.id, 'CERRADO').subscribe({
-      next: (data) => {
-        console.log('Posiciones CERRADAS cargadas:', data);
-        this.posicionesCerradas.set(data || []);
-      },
-      error: (err) => console.error('Error fetching cerradas', err)
-    });
+    this.currentPage = 0;
+    this.cargarPosiciones(0);
   }
 
   requestCerrar(id: number) {
@@ -325,9 +314,10 @@ export class ClientPositionsComponent implements OnInit {
 
   cerrar(id: number) {
     this.isConfirmOpen = false;
+    const posIdToClose = this.selectedPosId;
     this.selectedPosId = null;
     
-    const pos = this.posicionesAbiertas().find(p => p.idApuestaCliente === id);
+    const pos = this.posiciones().find(p => p.idApuestaCliente === id);
     const pnl = pos?.gananciaPerdida || 0;
     
     this.loadingService.show('candles', `Cerrando Posición ORD-${id}...`);
@@ -342,9 +332,8 @@ export class ClientPositionsComponent implements OnInit {
             message: `Posición ORD-${id} liquidada con éxito.`,
             type: 'info'
           });
-          this.cargarAbiertas();
-          this.cargarCerradas();
-        }, 1500); // Simulando el tiempo de espera
+          this.cargarPosiciones(this.currentPage);
+        }, 1500);
       },
       error: (err: any) => {
         this.loadingService.hide();

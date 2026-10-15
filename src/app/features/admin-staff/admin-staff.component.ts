@@ -6,11 +6,12 @@ import { debounceTime } from 'rxjs/operators';
 import { LoadingService } from '../../core/services/loading.service';
 import { AdminStaffService, AdminUser, AdminPayload } from '../../core/services/admin-staff.service';
 import { ClientCrypto } from '../../core/utils/client-crypto';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-admin-staff',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PaginationComponent],
   templateUrl: './admin-staff.component.html'
 })
 export class AdminStaffComponent implements OnInit {
@@ -18,6 +19,12 @@ export class AdminStaffComponent implements OnInit {
   isConfirmOpen = false;
   isEditMode = false;
   
+  // Pagination State
+  currentPage: number = 0;
+  totalPages: number = 1;
+  totalElements: number = 0;
+  pageSize: number = 10;
+
   // Data State
   admins: AdminUser[] = [];
   filteredAdmins: AdminUser[] = [];
@@ -44,7 +51,7 @@ export class AdminStaffComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadAdmins();
+    this.loadAdmins(0);
 
     this.emailCheckSubject.pipe(debounceTime(500)).subscribe(email => {
       this.checkEmail(email);
@@ -55,9 +62,13 @@ export class AdminStaffComponent implements OnInit {
     });
   }
 
-  loadAdmins() {
-    this.adminStaffService.getAdmins().subscribe({
-      next: async (data) => {
+  loadAdmins(page: number = 0) {
+    this.adminStaffService.getAdminsPaginados(page, this.pageSize).subscribe({
+      next: async (res) => {
+        this.currentPage = res.page;
+        this.totalPages = res.totalPages;
+        this.totalElements = res.totalElements;
+        const data = res.content || [];
         this.admins = await Promise.all(data.map(async item => {
           let plainPass = item.usuarioAuth?.pass || '';
           if (plainPass.startsWith('$2a$')) {
@@ -84,6 +95,12 @@ export class AdminStaffComponent implements OnInit {
         this.showToast('Error al cargar administradores');
       }
     });
+  }
+
+  onPageChange(newPage: number) {
+    if (newPage >= 0 && newPage < this.totalPages) {
+      this.loadAdmins(newPage);
+    }
   }
 
   applyFilter() {
@@ -280,7 +297,7 @@ export class AdminStaffComponent implements OnInit {
     this.loadingService.hide();
     this.showToast(`¡Administrador ${action} correctamente!`, 'success');
     this.closeModal();
-    this.loadAdmins();
+    this.loadAdmins(this.currentPage);
   }
 
   handleError(err: any) {

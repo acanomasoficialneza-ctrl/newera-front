@@ -204,6 +204,15 @@
 
           </div>
         </div>
+
+        <!-- Paginación de Clientes -->
+        <app-pagination 
+          [currentPage]="clientCurrentPage" 
+          [totalPages]="clientTotalPages" 
+          [totalElements]="clientTotalElements" 
+          [pageSize]="clientPageSize" 
+          (pageChange)="onClientPageChange($event)">
+        </app-pagination>
       </div>
 
       <!-- Slide-over Panel para Detalles del Cliente -->
@@ -488,6 +497,15 @@
                   </div>
                 </ng-container>
               </div>
+
+              <!-- Paginación de Posiciones del Cliente -->
+              <app-pagination 
+                [currentPage]="posCurrentPage" 
+                [totalPages]="posTotalPages" 
+                [totalElements]="posTotalElements" 
+                [pageSize]="posPageSize" 
+                (pageChange)="onPosPageChange($event)">
+              </app-pagination>
             </div>
 
             <!-- TAB: PERFIL / CAPITAL (Visto SOLO por SUPREMO) -->

@@ -6,11 +6,12 @@ import { AuthService } from '../../../core/services/auth.service';
 import { NotificationAlertService } from '../../../core/services/notification-alert.service';
 import { ApuestaCliente } from '../../../core/models/models';
 import { Subscription } from 'rxjs';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-positions-table',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PaginationComponent],
   template: `
     <div class="w-full h-full flex flex-col p-4 overflow-hidden">
       <!-- Encabezado -->
@@ -136,6 +137,15 @@ import { Subscription } from 'rxjs';
         </div>
 
       </div>
+
+      <!-- Paginación Server-Side -->
+      <app-pagination 
+        [currentPage]="currentPage" 
+        [totalPages]="totalPages" 
+        [totalElements]="totalElements" 
+        [pageSize]="pageSize" 
+        (pageChange)="onPageChange($event)">
+      </app-pagination>
       
       <!-- MODAL EMERGENTE DE CONFIRMACIÓN ESTÁNDAR -->
       <div *ngIf="isConfirmOpen" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -174,6 +184,11 @@ export class PositionsTableComponent implements OnInit, OnDestroy {
   posicionesAbiertas = signal<ApuestaCliente[]>([]);
   positionToClose = signal<ApuestaCliente | null>(null);
   
+  currentPage = 0;
+  totalPages = 1;
+  totalElements = 0;
+  pageSize = 10;
+  
   isConfirmOpen = false;
   toastMessage: string | null = null;
   
@@ -181,17 +196,8 @@ export class PositionsTableComponent implements OnInit, OnDestroy {
 
   // Lista ordenada a mostrar en la tabla
   displayedPositions = computed(() => {
-    const abiertas = [...this.posicionesAbiertas()];
-
-    // Ordenar por fecha descendente
-    return abiertas.sort((a, b) => {
-      const d1 = new Date(a.fechaCreacion || 0).getTime();
-      const d2 = new Date(b.fechaCreacion || 0).getTime();
-      return d2 - d1;
-    });
+    return this.posicionesAbiertas();
   });
-
-
 
   constructor(
     private socketService: TradingSocketService,
@@ -218,10 +224,10 @@ export class PositionsTableComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.cargarPosiciones();
+    this.cargarPosiciones(0);
     // Suscribirse al evento para recargar si se abre una posición desde el panel
     this.updateSub = this.apuestaService.posicionesActualizadas.subscribe(() => {
-      this.cargarPosiciones();
+      this.cargarPosiciones(this.currentPage);
     });
     
     // Conectar al socket de posiciones (FASE 3)
@@ -238,13 +244,24 @@ export class PositionsTableComponent implements OnInit, OnDestroy {
     this.socketService.disconnectPositions();
   }
 
-  cargarPosiciones() {
+  cargarPosiciones(page: number = 0) {
     const userId = this.authService.currentUser()?.id;
     if (userId) {
-      this.apuestaService.getApuestasByUsuario(userId, 'ABIERTO').subscribe({
-        next: (data) => this.posicionesAbiertas.set(data),
+      this.apuestaService.getApuestasPaginadas(userId, 'ABIERTO', page, this.pageSize).subscribe({
+        next: (res) => {
+          this.currentPage = res.page;
+          this.totalPages = res.totalPages;
+          this.totalElements = res.totalElements;
+          this.posicionesAbiertas.set(res.content || []);
+        },
         error: (err) => console.error('Error cargando posiciones', err)
       });
+    }
+  }
+
+  onPageChange(newPage: number) {
+    if (newPage >= 0 && newPage < this.totalPages) {
+      this.cargarPosiciones(newPage);
     }
   }
 
@@ -271,7 +288,7 @@ export class PositionsTableComponent implements OnInit, OnDestroy {
     this.apuestaService.cerrarPosicion(id).subscribe({
       next: () => {
         this.showToast('Posición cerrada correctamente');
-        this.cargarPosiciones();
+        this.cargarPosiciones(this.currentPage);
 
         this.alertService.notify({
           title: 'Posición Cerrada',

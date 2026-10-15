@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { PageResponse } from '../models/models';
 
 export interface AdminUser {
   idUsuario: number;
@@ -33,6 +34,10 @@ export class AdminStaffService {
 
   getAdmins(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/admins`);
+  }
+
+  getAdminsPaginados(page: number = 0, size: number = 10): Observable<PageResponse<any>> {
+    return this.http.get<PageResponse<any>>(`${this.apiUrl}/admins?page=${page}&size=${size}`);
   }
 
   createAdmin(payload: AdminPayload): Observable<any> {

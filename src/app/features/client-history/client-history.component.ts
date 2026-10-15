@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
-import { environment } from '../../../environments/environment';
+import { CajaService } from '../../core/services/caja.service';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 
 export interface CajaTransaction {
   id: string;
@@ -17,7 +17,7 @@ export interface CajaTransaction {
 @Component({
   selector: 'app-client-history',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, PaginationComponent],
   template: `
     <div class="h-full p-6 flex flex-col gap-6 animate-in fade-in duration-300">
       
@@ -85,6 +85,9 @@ export interface CajaTransaction {
                   </span>
                 </td>
               </tr>
+              <tr *ngIf="transactions.length === 0">
+                <td colspan="7" class="text-center py-12 text-white/40 text-sm">No hay transacciones registradas</td>
+              </tr>
             </tbody>
           </table>
 
@@ -147,8 +150,21 @@ export interface CajaTransaction {
                 </div>
               </div>
             </div>
+
+            <div *ngIf="transactions.length === 0" class="text-center py-8 text-white/40 text-sm border border-white/5 rounded-xl bg-black/20">
+              No hay transacciones registradas
+            </div>
           </div>
         </div>
+
+        <!-- Paginación Server-Side -->
+        <app-pagination 
+          [currentPage]="currentPage" 
+          [totalPages]="totalPages" 
+          [totalElements]="totalElements" 
+          [pageSize]="pageSize" 
+          (pageChange)="onPageChange($event)">
+        </app-pagination>
       </div>
 
     </div>
@@ -157,28 +173,36 @@ export interface CajaTransaction {
 export class ClientHistoryComponent {
   transactions: CajaTransaction[] = [];
   isLoading = true;
+  currentPage = 0;
+  totalPages = 1;
+  totalElements = 0;
+  pageSize = 10;
 
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private cajaService: CajaService, private authService: AuthService) {}
 
   ngOnInit() {
-    this.loadTransactions();
+    this.loadTransactions(0);
   }
 
-  loadTransactions() {
+  loadTransactions(page: number = 0) {
     const user = this.authService.currentUser();
     if (!user) return;
     
-    this.http.get<any[]>(`${environment.apiUrl}/caja/usuario/${user.id}`).subscribe({
-      next: (data) => {
-        this.transactions = data.map(tx => ({
+    this.isLoading = true;
+    this.cajaService.getTransaccionesByUsuarioPaginado(user.id, page, this.pageSize).subscribe({
+      next: (res) => {
+        this.currentPage = res.page;
+        this.totalPages = res.totalPages;
+        this.totalElements = res.totalElements;
+        this.transactions = (res.content || []).map((tx: any) => ({
           id: `TX-${tx.idTransaccion}`,
           date: new Date(tx.fechaSolicitud),
           type: tx.tipoTransaccion,
           method: tx.metodoPago || 'N/A',
           amount: tx.monto,
           status: tx.estatus,
-          note: tx.notas || ''
-        })).sort((a, b) => b.date.getTime() - a.date.getTime());
+          note: tx.detallesCuenta || tx.notas || ''
+        }));
         this.isLoading = false;
       },
       error: (err) => {
@@ -186,6 +210,12 @@ export class ClientHistoryComponent {
         this.isLoading = false;
       }
     });
+  }
+
+  onPageChange(newPage: number) {
+    if (newPage >= 0 && newPage < this.totalPages) {
+      this.loadTransactions(newPage);
+    }
   }
 
   getStatusClasses(status: string) {

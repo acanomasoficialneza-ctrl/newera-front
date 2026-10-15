@@ -2,17 +2,23 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminAuditService, AuditLog } from '../../core/services/admin-audit.service';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-admin-audit',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PaginationComponent],
   templateUrl: './admin-audit.component.html'
 })
 export class AdminAuditComponent implements OnInit {
   selectedDate: string = '';
   logs: AuditLog[] = [];
   filteredLogs: AuditLog[] = [];
+
+  currentPage: number = 0;
+  totalPages: number = 1;
+  totalElements: number = 0;
+  pageSize: number = 10;
 
   constructor(private auditService: AdminAuditService) {}
 
@@ -22,21 +28,30 @@ export class AdminAuditComponent implements OnInit {
     const day = today.getDate().toString().padStart(2, '0');
     this.selectedDate = `${today.getFullYear()}-${m}-${day}`;
     
-    this.loadLogs();
+    this.loadLogs(0);
   }
 
-  loadLogs() {
-    this.auditService.getLogs(this.selectedDate).subscribe({
-      next: (data) => {
-        // Sort descending by date
-        this.filteredLogs = data.sort((a, b) => new Date(b.fechaEvento).getTime() - new Date(a.fechaEvento).getTime());
+  loadLogs(page: number = 0) {
+    this.auditService.getLogsPaginados(this.selectedDate, page, this.pageSize).subscribe({
+      next: (res) => {
+        this.currentPage = res.page;
+        this.totalPages = res.totalPages;
+        this.totalElements = res.totalElements;
+        this.filteredLogs = res.content || [];
       },
       error: (err) => console.error('Error loading audit logs', err)
     });
   }
 
+  onPageChange(newPage: number) {
+    if (newPage >= 0 && newPage < this.totalPages) {
+      this.loadLogs(newPage);
+    }
+  }
+
   onDateChange() {
-    this.loadLogs();
+    this.currentPage = 0;
+    this.loadLogs(0);
   }
 
   downloadLogs() {

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { PageResponse } from '../models/models';
 
 export interface ClientePayload {
   correo: string;
@@ -28,6 +29,10 @@ export class AdminCrmService {
     return this.http.get<any[]>(`${this.apiUrl}/clientes`);
   }
 
+  getClientesPaginados(page: number = 0, size: number = 10): Observable<PageResponse<any>> {
+    return this.http.get<PageResponse<any>>(`${this.apiUrl}/clientes?page=${page}&size=${size}`);
+  }
+
   getClienteById(idUsuario: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${idUsuario}`);
   }
@@ -37,6 +42,12 @@ export class AdminCrmService {
       `${environment.apiUrl}/apuestas/usuario/${idUsuario}?estatus=${estatus}` : 
       `${environment.apiUrl}/apuestas/usuario/${idUsuario}`;
     return this.http.get<any[]>(url);
+  }
+
+  getApuestasPaginadas(idUsuario: number, estatus?: string, page: number = 0, size: number = 10): Observable<PageResponse<any>> {
+    const baseUrl = `${environment.apiUrl}/apuestas/usuario/${idUsuario}?page=${page}&size=${size}`;
+    const url = estatus ? `${baseUrl}&estatus=${estatus}` : baseUrl;
+    return this.http.get<PageResponse<any>>(url);
   }
 
   getTransacciones(idUsuario: number): Observable<any[]> {

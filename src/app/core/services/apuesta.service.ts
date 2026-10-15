@@ -3,6 +3,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
+import { ApuestaCliente, PageResponse } from '../models/models';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -34,5 +36,13 @@ export class ApuestaService {
       url += `?estatus=${estatus}`;
     }
     return this.http.get<any[]>(url);
+  }
+
+  getApuestasPaginadas(idUsuario: number, estatus?: string, page: number = 0, size: number = 10): Observable<PageResponse<ApuestaCliente>> {
+    let url = `${this.apiUrl}/usuario/${idUsuario}?page=${page}&size=${size}`;
+    if (estatus) {
+      url += `&estatus=${estatus}`;
+    }
+    return this.http.get<PageResponse<ApuestaCliente>>(url);
   }
 }

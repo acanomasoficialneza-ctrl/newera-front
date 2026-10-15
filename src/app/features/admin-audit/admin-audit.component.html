@@ -55,7 +55,20 @@
             <span class="ml-auto shrink-0 pl-4 hidden md:block" [ngClass]="log.nivel === 'CRITICAL' ? 'text-red-500/70' : 'text-white/30'">{{ log.direccionIp }}</span>
             
           </div>
+
+          <div *ngIf="filteredLogs.length === 0" class="text-center py-8 text-white/40 font-mono text-xs">
+            No hay registros de auditoría para esta fecha
+          </div>
         </div>
+
+        <!-- Paginación Server-Side -->
+        <app-pagination 
+          [currentPage]="currentPage" 
+          [totalPages]="totalPages" 
+          [totalElements]="totalElements" 
+          [pageSize]="pageSize" 
+          (pageChange)="onPageChange($event)">
+        </app-pagination>
 
       </div>
 

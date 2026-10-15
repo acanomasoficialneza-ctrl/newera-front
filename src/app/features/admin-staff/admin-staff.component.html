@@ -83,9 +83,21 @@
                   </button>
                 </td>
               </tr>
+              <tr *ngIf="filteredAdmins.length === 0">
+                <td colspan="6" class="p-8 text-center text-white/40 text-sm">No hay administradores registrados</td>
+              </tr>
             </tbody>
           </table>
         </div>
+
+        <!-- Paginación Server-Side (Desktop) -->
+        <app-pagination 
+          [currentPage]="currentPage" 
+          [totalPages]="totalPages" 
+          [totalElements]="totalElements" 
+          [pageSize]="pageSize" 
+          (pageChange)="onPageChange($event)">
+        </app-pagination>
       </div>
 
       <!-- Vista Móvil (Cards) -->
@@ -139,6 +151,19 @@
             Actualizar Datos
           </button>
         </div>
+
+        <div *ngIf="filteredAdmins.length === 0" class="text-center py-8 text-white/40 text-sm border border-white/5 rounded-xl bg-black/20">
+          No hay administradores registrados
+        </div>
+
+        <!-- Paginación Server-Side (Móvil) -->
+        <app-pagination 
+          [currentPage]="currentPage" 
+          [totalPages]="totalPages" 
+          [totalElements]="totalElements" 
+          [pageSize]="pageSize" 
+          (pageChange)="onPageChange($event)">
+        </app-pagination>
       </div>
 
     </div>

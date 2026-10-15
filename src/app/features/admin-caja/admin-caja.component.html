@@ -23,7 +23,7 @@
       <!-- Filters -->
       <div class="glass-panel p-4 flex flex-col md:flex-row justify-between gap-4">
         <div class="flex gap-2 md:gap-4 overflow-x-auto pb-1 md:pb-0 hide-scrollbar">
-          <button (click)="setTab('PENDIENTES')" [ngClass]="activeTab === 'PENDIENTES' ? 'bg-newera-primary/20 text-newera-primary border-newera-primary/50' : 'bg-white/5 text-white/70 border-transparent hover:border-white/20'" class="px-4 py-2 border font-bold text-xs rounded uppercase tracking-wider transition-colors whitespace-nowrap">Pendientes ({{requests.length}})</button>
+          <button (click)="setTab('PENDIENTES')" [ngClass]="activeTab === 'PENDIENTES' ? 'bg-newera-primary/20 text-newera-primary border-newera-primary/50' : 'bg-white/5 text-white/70 border-transparent hover:border-white/20'" class="px-4 py-2 border font-bold text-xs rounded uppercase tracking-wider transition-colors whitespace-nowrap">Pendientes ({{ activeTab === 'PENDIENTES' ? totalElements : requests.length }})</button>
           <button (click)="setTab('HISTORIAL')" [ngClass]="activeTab === 'HISTORIAL' ? 'bg-newera-primary/20 text-newera-primary border-newera-primary/50' : 'bg-white/5 text-white/70 border-transparent hover:border-white/20'" class="px-4 py-2 border font-bold text-xs rounded uppercase tracking-wider transition-colors whitespace-nowrap">Historial Aprobado</button>
         </div>
         <div class="relative w-full md:w-64">
@@ -278,6 +278,15 @@
             </div>
           </div>
         </div>
+
+        <!-- Paginación Server-Side -->
+        <app-pagination 
+          [currentPage]="currentPage" 
+          [totalPages]="totalPages" 
+          [totalElements]="totalElements" 
+          [pageSize]="pageSize" 
+          (pageChange)="onPageChange($event)">
+        </app-pagination>
       </div>
 
       <!-- Modal de Confirmación -->

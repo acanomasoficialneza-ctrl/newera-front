@@ -12,11 +12,12 @@ import { forkJoin } from 'rxjs';
 import { TradingSocketService } from '../../core/services/trading-socket.service';
 import { ClientCrypto } from '../../core/utils/client-crypto';
 import { NotificationAlertService } from '../../core/services/notification-alert.service';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 
 @Component({
   selector: 'app-admin-crm',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PaginationComponent],
   templateUrl: './admin-crm.component.html'
 })
 export class AdminCrmComponent implements OnInit {
@@ -49,6 +50,16 @@ export class AdminCrmComponent implements OnInit {
   clients: any[] = [];
   filteredClients: any[] = [];
   searchTerm: string = '';
+
+  clientCurrentPage: number = 0;
+  clientTotalPages: number = 1;
+  clientTotalElements: number = 0;
+  clientPageSize: number = 10;
+
+  posCurrentPage: number = 0;
+  posTotalPages: number = 1;
+  posTotalElements: number = 0;
+  posPageSize: number = 10;
 
   isNewClientModalOpen: boolean = false;
   newClientErrorMessage: string = '';
@@ -149,19 +160,24 @@ export class AdminCrmComponent implements OnInit {
   // Se eliminó loadAdmins() individual porque ahora se carga junto con clientes
 
 
-  loadClients() {
+  loadClients(page: number = 0) {
     forkJoin({
-      clientes: this.adminCrmService.getClientes(),
+      clientesPage: this.adminCrmService.getClientesPaginados(page, this.clientPageSize),
       asignaciones: this.adminCrmService.getAllAsignaciones(),
       admins: this.adminCrmService.getAdmins()
     }).subscribe({
-      next: async ({ clientes, asignaciones, admins }) => {
+      next: async ({ clientesPage, asignaciones, admins }) => {
+        this.clientCurrentPage = clientesPage.page;
+        this.clientTotalPages = clientesPage.totalPages;
+        this.clientTotalElements = clientesPage.totalElements;
+
         // Guardar admins activos globalmente (Solo GERENTES y EJECUTIVOS)
         this.activeAdmins = admins.filter(a => 
           a.usuarioAuth?.estado === 'ACTIVO' && 
           ['GERENTE', 'EJECUTIVO'].includes(a.usuarioAuth?.rol)
         );
 
+        const clientes = clientesPage.content || [];
         const filtered = clientes.filter(c => {
           if (this.isSupremo) return true; // Director ve todos
           const asigs = asignaciones.filter(a => a.idCliente === c.idUsuario);
@@ -227,6 +243,12 @@ export class AdminCrmComponent implements OnInit {
     });
   }
 
+  onClientPageChange(newPage: number) {
+    if (newPage >= 0 && newPage < this.clientTotalPages) {
+      this.loadClients(newPage);
+    }
+  }
+
   applyFilter() {
     if (!this.searchTerm) {
       this.filteredClients = [...this.clients];
@@ -244,7 +266,8 @@ export class AdminCrmComponent implements OnInit {
     this.selectedClient = { ...client };
     this.activeTab = 'posiciones'; // Reset to default tab
     this.filtroPosiciones = 'ABIERTO';
-    this.loadApuestasCliente();
+    this.posCurrentPage = 0;
+    this.loadApuestasCliente(0);
     this.loadSecureImages();
     // Conectar los sockets modulares para el cliente
     this.tradingSocketService.connectPositions(this.selectedClient.id);
@@ -268,12 +291,15 @@ export class AdminCrmComponent implements OnInit {
     return `${environment.apiUrl}/usuarios/media?path=${encodeURIComponent(path)}`;
   }
 
-  loadApuestasCliente() {
+  loadApuestasCliente(page: number = 0) {
     if (!this.selectedClient) return;
     this.mockPositions = []; // Limpiamos para asegurar que solo vemos info de BD
-    this.adminCrmService.getApuestas(this.selectedClient.id, this.filtroPosiciones).subscribe({
-      next: (data) => {
-        this.mockPositions = data.map(a => ({
+    this.adminCrmService.getApuestasPaginadas(this.selectedClient.id, this.filtroPosiciones, page, this.posPageSize).subscribe({
+      next: (res) => {
+        this.posCurrentPage = res.page;
+        this.posTotalPages = res.totalPages;
+        this.posTotalElements = res.totalElements;
+        this.mockPositions = (res.content || []).map((a: any) => ({
           id: a.idApuestaCliente,
           name: a.compra,
           category: a.categoria || 'N/A', 
@@ -291,11 +317,17 @@ export class AdminCrmComponent implements OnInit {
     });
   }
 
+  onPosPageChange(newPage: number) {
+    if (newPage >= 0 && newPage < this.posTotalPages) {
+      this.loadApuestasCliente(newPage);
+    }
+  }
+
   closeClientModal() {
     this.selectedClient = null;
     this.tradingSocketService.disconnectPositions();
     this.tradingSocketService.disconnectBalance();
-    this.loadClients(); // Actualizar la tabla con los nuevos asignados
+    this.loadClients(this.clientCurrentPage); // Mantener la página actual
   }
 
   openNewClientModal() {
@@ -447,7 +479,7 @@ export class AdminCrmComponent implements OnInit {
     if (tab === 'caja' && this.selectedClient) {
       this.loadTransaccionesCaja();
     } else if (tab === 'posiciones' && this.selectedClient) {
-      this.loadApuestasCliente();
+      this.loadApuestasCliente(this.posCurrentPage);
     } else if (tab === 'perfil' && this.selectedClient) {
       this.loadPerfilCliente();
       this.loadTransaccionesCaja(); // Necesario para calcular totales de depósitos y retiros
@@ -459,7 +491,8 @@ export class AdminCrmComponent implements OnInit {
 
   setFiltroPosiciones(filtro: 'ABIERTO' | 'CERRADO') {
     this.filtroPosiciones = filtro;
-    this.loadApuestasCliente();
+    this.posCurrentPage = 0;
+    this.loadApuestasCliente(0);
   }
 
   loadAsignaciones() {
@@ -868,7 +901,7 @@ export class AdminCrmComponent implements OnInit {
           type: 'info'
         });
         this.positionToClose = null;
-        this.loadApuestasCliente(); // Reload UI
+        this.loadApuestasCliente(this.posCurrentPage); // Reload UI
         this.loadPerfilCliente(); // Reload Margen/Balance
       },
       error: (err) => {

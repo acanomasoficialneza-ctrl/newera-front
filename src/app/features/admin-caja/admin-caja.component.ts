@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CajaService, TransaccionCaja } from '../../core/services/caja.service';
 import { NotificationAlertService } from '../../core/services/notification-alert.service';
+import { PaginationComponent } from '../../shared/components/pagination/pagination.component';
 
 interface RequestModel {
   id: number;
@@ -21,13 +22,19 @@ interface RequestModel {
 @Component({
   selector: 'app-admin-caja',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PaginationComponent],
   providers: [],
   templateUrl: './admin-caja.component.html'
 })
 export class AdminCajaComponent implements OnInit {
   // Tab State
   activeTab: 'PENDIENTES' | 'HISTORIAL' = 'PENDIENTES';
+
+  // Pagination State
+  currentPage: number = 0;
+  totalPages: number = 1;
+  totalElements: number = 0;
+  pageSize: number = 10;
 
   // Modal State
   showConfirmModal: boolean = false;
@@ -45,15 +52,16 @@ export class AdminCajaComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.loadPendientes();
+    this.loadPendientes(0);
   }
 
   setTab(tab: 'PENDIENTES' | 'HISTORIAL') {
     this.activeTab = tab;
+    this.currentPage = 0;
     if (tab === 'PENDIENTES') {
-      this.loadPendientes();
+      this.loadPendientes(0);
     } else {
-      this.loadHistorial();
+      this.loadHistorial(0);
     }
   }
 
@@ -73,22 +81,38 @@ export class AdminCajaComponent implements OnInit {
     };
   }
 
-  loadPendientes() {
-    this.cajaService.getTransaccionesPendientes().subscribe({
-      next: (transacciones) => {
-        this.requests = transacciones.map(t => this.mapTransaccion(t));
+  loadPendientes(page: number = 0) {
+    this.cajaService.getTransaccionesPendientesPaginadas(page, this.pageSize).subscribe({
+      next: (res) => {
+        this.currentPage = res.page;
+        this.totalPages = res.totalPages;
+        this.totalElements = res.totalElements;
+        this.requests = (res.content || []).map(t => this.mapTransaccion(t));
       },
       error: (err) => console.error('Error loading pending caja data', err)
     });
   }
 
-  loadHistorial() {
-    this.cajaService.getTransaccionesHistorial().subscribe({
-      next: (transacciones) => {
-        this.approvedRequests = transacciones.map(t => this.mapTransaccion(t));
+  loadHistorial(page: number = 0) {
+    this.cajaService.getTransaccionesHistorialPaginadas(page, this.pageSize).subscribe({
+      next: (res) => {
+        this.currentPage = res.page;
+        this.totalPages = res.totalPages;
+        this.totalElements = res.totalElements;
+        this.approvedRequests = (res.content || []).map(t => this.mapTransaccion(t));
       },
       error: (err) => console.error('Error loading historial caja data', err)
     });
+  }
+
+  onPageChange(newPage: number) {
+    if (newPage >= 0 && newPage < this.totalPages) {
+      if (this.activeTab === 'PENDIENTES') {
+        this.loadPendientes(newPage);
+      } else {
+        this.loadHistorial(newPage);
+      }
+    }
   }
 
   get pendingRetirosTotal(): number {
@@ -130,8 +154,8 @@ export class AdminCajaComponent implements OnInit {
                message: `Petición #${reqId} (${reqType} por $${reqAmount} USD) aprobada con éxito.`,
                type: 'success'
              });
-             if (this.activeTab === 'PENDIENTES') this.loadPendientes();
-             else this.loadHistorial();
+             if (this.activeTab === 'PENDIENTES') this.loadPendientes(this.currentPage);
+             else this.loadHistorial(this.currentPage);
            },
            error: (err) => {
              console.error(err);
@@ -152,8 +176,8 @@ export class AdminCajaComponent implements OnInit {
                message: `Petición #${reqId} ha sido rechazada.`,
                type: 'warning'
              });
-             if (this.activeTab === 'PENDIENTES') this.loadPendientes();
-             else this.loadHistorial();
+             if (this.activeTab === 'PENDIENTES') this.loadPendientes(this.currentPage);
+             else this.loadHistorial(this.currentPage);
            },
            error: (err) => {
              console.error(err);
